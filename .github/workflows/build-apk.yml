@@ -32,6 +32,8 @@ jobs:
     steps:
       - id: checkout
         uses: actions/checkout@v5
+        with:
+          lfs: true   # descarga los modelos .onnx (Git LFS) para incluirlos en el APK
 
       - id: java
         uses: actions/setup-java@v5
