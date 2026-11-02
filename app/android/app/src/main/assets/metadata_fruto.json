@@ -1,0 +1,128 @@
+{
+  "proyecto": "Detection and Classification of Epidermal Damage in Purple Passion Fruit",
+  "rol": "fruto",
+  "descripcion": "Modelo A: localiza el fruto en la foto completa",
+  "fecha_exportacion": "2026-10-30T19:01:23",
+  "runtime_android": "com.microsoft.onnxruntime:onnxruntime-android",
+  "clases": {
+    "0": "fruit"
+  },
+  "entrada": {
+    "nombre": "images",
+    "forma": [
+      1,
+      3,
+      480,
+      480
+    ],
+    "tipo": "float32",
+    "canales": "RGB",
+    "normalizacion": "pixel / 255.0  (rango 0-1)",
+    "redimension": "letterbox a 480x480 conservando proporción, centrado, relleno (114,114,114)"
+  },
+  "salidas": {
+    "output0": {
+      "forma": [
+        1,
+        300,
+        38
+      ]
+    },
+    "output1": {
+      "forma": [
+        1,
+        32,
+        120,
+        120
+      ]
+    }
+  },
+  "formato_output0": [
+    "x1",
+    "y1",
+    "x2",
+    "y2",
+    "confianza",
+    "clase",
+    "coef_0",
+    "coef_1",
+    "coef_2",
+    "coef_3",
+    "coef_4",
+    "coef_5",
+    "coef_6",
+    "coef_7",
+    "coef_8",
+    "coef_9",
+    "coef_10",
+    "coef_11",
+    "coef_12",
+    "coef_13",
+    "coef_14",
+    "coef_15",
+    "coef_16",
+    "coef_17",
+    "coef_18",
+    "coef_19",
+    "coef_20",
+    "coef_21",
+    "coef_22",
+    "coef_23",
+    "coef_24",
+    "coef_25",
+    "coef_26",
+    "coef_27",
+    "coef_28",
+    "coef_29",
+    "coef_30",
+    "coef_31"
+  ],
+  "decodificacion_mascara": "mascara = sigmoide(coef[32] · prototipos[32, h·w]) → h×w; ampliar a 480×480 (bilineal); conservar solo dentro de la caja; umbral 0.5; quitar letterbox; escalar a la imagen original",
+  "umbrales": {
+    "confianza": 0.25,
+    "mascara": 0.5
+  },
+  "uso": {
+    "paso": "Tomar la detección 'fruit' de mayor confianza",
+    "recorte_margen": 0.1,
+    "recorte_nota": "margen relativo al lado mayor de la caja del fruto, ajustado a la imagen",
+    "fondo_color_RGB": [
+      128,
+      128,
+      128
+    ],
+    "fondo_holgura": 0.004,
+    "fondo_nota": "dilatar la máscara del fruto holgura × lado mayor del recorte; fuera = color de fondo",
+    "foto_previa": {
+      "enderezar_exif": true,
+      "lado_maximo_px": 2048
+    },
+    "siguiente": "pasar el recorte con fondo gris al Modelo B (lesiones)"
+  },
+  "archivos": {
+    "fp32": {
+      "archivo": "gulupa_fruto_yolo26n-seg.onnx",
+      "MB": 11.07
+    },
+    "int8": {
+      "archivo": "gulupa_fruto_yolo26n-seg_int8.onnx",
+      "MB": 3.23
+    }
+  },
+  "verificacion_vs_pytorch": {
+    "fp32": {
+      "imagenes": 30,
+      "decodificacion_exacta_%": 100.0,
+      "iou_vs_pytorch_medio": 0.9819,
+      "iou_vs_pytorch_minimo": 0.9678,
+      "misma_deteccion_principal_%": 100.0
+    },
+    "int8": {
+      "imagenes": 30,
+      "decodificacion_exacta_%": 100.0,
+      "iou_vs_pytorch_medio": 0.9813,
+      "iou_vs_pytorch_minimo": 0.9689,
+      "misma_deteccion_principal_%": 100.0
+    }
+  }
+}
