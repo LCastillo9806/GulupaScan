@@ -1,0 +1,4 @@
+fruit
+scab
+anthracnose
+oil_spot
