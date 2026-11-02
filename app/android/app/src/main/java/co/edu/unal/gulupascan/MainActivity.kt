@@ -1,5 +1,7 @@
 package co.edu.unal.gulupascan
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,12 +22,14 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -48,9 +52,11 @@ import co.edu.unal.gulupascan.ui.screens.ResultScreen
 import co.edu.unal.gulupascan.ui.screens.SettingsScreen
 import co.edu.unal.gulupascan.ui.screens.SplashScreen
 import co.edu.unal.gulupascan.ui.screens.TechDetailsScreen
+import co.edu.unal.gulupascan.ui.theme.AppLanguage
 import co.edu.unal.gulupascan.ui.theme.BrandDark
-import co.edu.unal.gulupascan.ui.theme.GulupaScanTheme
 import co.edu.unal.gulupascan.ui.theme.BrandSoft
+import co.edu.unal.gulupascan.ui.theme.GulupaScanTheme
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     private val vm: AppViewModel by viewModels()
@@ -59,21 +65,33 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val theme by vm.theme.collectAsStateWithLifecycle()
+            val language by vm.language.collectAsStateWithLifecycle()
+
             val t = theme
             if (t == null) {
                 Box(Modifier.fillMaxSize())
             } else {
-                GulupaScanTheme(t) {
-                    // Barra de estado y de navegación del color del tema.
-                    val bar = BrandDark.toArgb()
-                    SideEffect {
-                        window.statusBarColor = bar
-                        window.navigationBarColor = bar
+                val localizedContext = rememberLocalizedContext(LocalContext.current, language)
+                CompositionLocalProvider(LocalContext provides localizedContext) {
+                    GulupaScanTheme(t) {
+                        val bar = BrandDark.toArgb()
+                        SideEffect {
+                            window.statusBarColor = bar
+                            window.navigationBarColor = bar
+                        }
+                        GulupaScanApp(vm)
                     }
-                    GulupaScanApp(vm)
                 }
             }
         }
+    }
+
+    private fun rememberLocalizedContext(base: Context, language: AppLanguage): Context {
+        val locale = Locale(language.code)
+        Locale.setDefault(locale)
+        val config = Configuration(base.resources.configuration)
+        config.setLocale(locale)
+        return base.createConfigurationContext(config)
     }
 }
 
@@ -116,7 +134,6 @@ fun GulupaScanApp(vm: AppViewModel) {
     val currentRoute = backStack?.destination?.route
     val showBar = tabs.any { it.route == currentRoute }
 
-    // Cuando termina el análisis, pasa de "Procesando" a "Tipos de daño".
     LaunchedEffect(scan, currentRoute) {
         if (scan is ScanState.Done && currentRoute == Routes.PROCESSING) {
             nav.navigate(Routes.DAMAGES) { popUpTo(Routes.PROCESSING) { inclusive = true } }
@@ -172,6 +189,7 @@ fun GulupaScanApp(vm: AppViewModel) {
                             onDamage = { nav.navigate(Routes.damage(it)) },
                             onSave = { vm.saveCurrent() },
                             onTech = { nav.navigate(Routes.TECH) },
+                            onExportPdf = { vm.exportPdf(a) },
                             onNewScan = {
                                 vm.reset()
                                 if (!nav.popBackStack(Routes.SCAN, inclusive = false)) {
@@ -204,10 +222,14 @@ fun GulupaScanApp(vm: AppViewModel) {
                     )
                 }
                 composable(Routes.SETTINGS) {
-                    SettingsScreen(profile, settings,
+                    SettingsScreen(
+                        profile = profile,
+                        settings = settings,
                         onTheme = { vm.setTheme(it) },
+                        onLanguage = { vm.setLanguage(it) },
                         onSave = { p, s -> vm.updateProfile(p); vm.updateSettings(s); nav.popBackStack() },
-                        onBack = { nav.popBackStack() })
+                        onBack = { nav.popBackStack() }
+                    )
                 }
                 composable(Routes.ABOUT) { AboutScreen { nav.popBackStack() } }
             }
@@ -217,7 +239,6 @@ fun GulupaScanApp(vm: AppViewModel) {
 
 @Composable
 private fun MissingAnalysis(nav: NavHostController) {
-    // Ocurre si el sistema cerró la app en segundo plano: volvemos a la cámara.
     LaunchedEffect(Unit) { nav.navigate(Routes.SCAN) { popUpTo(nav.graph.id) { inclusive = true } } }
 }
 
@@ -229,7 +250,6 @@ private fun BottomBar(nav: NavHostController, currentRoute: String?) {
                 selected = currentRoute == tab.route,
                 onClick = {
                     if (currentRoute != tab.route) nav.navigate(tab.route) {
-                        // SCAN es siempre la raíz después del splash/login.
                         popUpTo(Routes.SCAN) { saveState = true }
                         launchSingleTop = true
                         restoreState = true

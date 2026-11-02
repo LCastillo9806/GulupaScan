@@ -9,10 +9,14 @@ import co.edu.unal.gulupascan.data.AnalysisRepository
 import co.edu.unal.gulupascan.data.AppSettings
 import co.edu.unal.gulupascan.data.DemoAnalyzer
 import co.edu.unal.gulupascan.data.ImageUtils
+import co.edu.unal.gulupascan.data.OnnxLocalAnalyzer
+import co.edu.unal.gulupascan.data.PdfReportGenerator
 import co.edu.unal.gulupascan.data.RemoteAnalyzer
 import co.edu.unal.gulupascan.data.SessionStore
 import co.edu.unal.gulupascan.data.UserProfile
 import co.edu.unal.gulupascan.domain.Analysis
+import co.edu.unal.gulupascan.ui.theme.AppLanguage
+import co.edu.unal.gulupascan.ui.theme.AppTheme
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,6 +44,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     val session = SessionStore(app)
     private val repo = AnalysisRepository(app)
+    private val onnxAnalyzer by lazy { OnnxLocalAnalyzer(app) }
 
     val loggedIn: StateFlow<Boolean?> = session.loggedIn
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -48,10 +53,15 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     val settings: StateFlow<AppSettings> = session.settings
         .stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings())
 
-    /** Tema guardado; null mientras se lee (evita mostrar un instante el tema equivocado). */
-    val theme: StateFlow<co.edu.unal.gulupascan.ui.theme.AppTheme?> = session.settings
+    /** Tema guardado */
+    val theme: StateFlow<AppTheme?> = session.settings
         .map { it.theme }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /** Idioma seleccionado */
+    val language: StateFlow<AppLanguage> = session.settings
+        .map { it.language }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, AppLanguage.SPANISH)
 
     private val _scan = MutableStateFlow<ScanState>(ScanState.Idle)
     val scan: StateFlow<ScanState> = _scan.asStateFlow()
@@ -73,7 +83,6 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun analyze(uri: Uri, forceDemo: Boolean = false) {
         job?.cancel()
         val id = UUID.randomUUID().toString().take(8)
-        // Estado inmediato para que la pantalla "Procesando" no vea un resultado anterior.
         _scan.value = ScanState.Processing(null)
         job = viewModelScope.launch {
             val ctx = getApplication<Application>()
@@ -93,7 +102,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** Reintenta la última foto en modo demostración (si el servidor falló). */
+    /** Reintenta la última foto en modo demostración. */
     fun retryAsDemo() {
         val (id, jpeg) = lastJpeg ?: return
         job?.cancel()
@@ -112,7 +121,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private suspend fun runAnalysis(id: String, jpeg: ByteArray, workDir: File, forceDemo: Boolean) {
         _scan.value = ScanState.Processing(File(workDir, "original.jpg").absolutePath)
         val s = session.settings.first()
-        val analyzer = if (forceDemo || s.demoMode) DemoAnalyzer() else RemoteAnalyzer(s.serverUrl)
+        val analyzer = when {
+            forceDemo || s.demoMode -> DemoAnalyzer()
+            s.offlineMode -> onnxAnalyzer
+            else -> RemoteAnalyzer(s.serverUrl)
+        }
         val result = analyzer.analyze(id, jpeg, workDir)
         repo.write(result)
         _scan.value = ScanState.Done(result)
@@ -141,7 +154,6 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         if (_scan.value !is ScanState.Processing) _scan.value = ScanState.Idle
     }
 
-    /** Abre un análisis del historial en las pantallas de resultado. */
     fun open(analysis: Analysis) {
         job?.cancel()
         _scan.value = ScanState.Done(analysis)
@@ -167,16 +179,24 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     suspend fun exportCsv(): File = repo.exportCsv(_history.value)
 
+    suspend fun exportPdf(analysis: Analysis): File = PdfReportGenerator.generateReport(getApplication(), analysis)
+
     private suspend fun refreshHistory() {
         _history.value = repo.saved()
     }
 
-    // ---- Sesión ----
+    // ---- Sesión y Configuración ----
     suspend fun login(email: String, pass: String) = session.login(email, pass)
     suspend fun register(name: String, email: String, pass: String) = session.register(name, email, pass)
     suspend fun hasAccount() = session.hasAccount()
     fun logout() = viewModelScope.launch { session.logout() }
     fun updateProfile(p: UserProfile) = viewModelScope.launch { session.updateProfile(p) }
     fun updateSettings(s: AppSettings) = viewModelScope.launch { session.updateSettings(s) }
-    fun setTheme(t: co.edu.unal.gulupascan.ui.theme.AppTheme) = viewModelScope.launch { session.setTheme(t) }
+    fun setTheme(t: AppTheme) = viewModelScope.launch { session.setTheme(t) }
+    fun setLanguage(l: AppLanguage) = viewModelScope.launch { session.setLanguage(l) }
+
+    override fun onCleared() {
+        super.onCleared()
+        onnxAnalyzer.close()
+    }
 }

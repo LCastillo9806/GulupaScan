@@ -16,7 +16,7 @@ android {
         versionCode = 1
         versionName = "0.3.0"
 
-        // Servidor por defecto (Space de Hugging Face con api.py desplegado).
+        // Servidor opcional (Space de Hugging Face con api.py desplegado).
         // Se puede cambiar dentro de la app en Perfil > Configuración.
         buildConfigField("String", "DEFAULT_SERVER_URL", "\"https://jf-floresriera-powderyvision7.hf.space\"")
     }
@@ -38,6 +38,9 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    androidResources {
+        noCompress += "onnx"
     }
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -61,6 +64,9 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.0")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("androidx.exifinterface:exifinterface:1.3.7")
+
+    // ONNX Runtime para inferencia directa en el teléfono (offline)
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.20.0")
 
     // Cámara
     val camerax = "1.3.4"

@@ -15,11 +15,21 @@ import androidx.compose.ui.unit.sp
 
 /** Temas disponibles. El id se guarda en las preferencias. */
 enum class AppTheme(val id: String) {
-    GREEN("green"),     // mockup del Reto 2 (verde + crema)
-    PURPLE("purple");   // presentación del Reto 2 (morado gulupa + lavanda + rosa)
+    GREEN("green"),     // Verde campo (mockup original)
+    PURPLE("purple");   // Morado gulupa (identidad de marca UNAL)
 
     companion object {
         fun from(id: String?) = entries.firstOrNull { it.id == id } ?: GREEN
+    }
+}
+
+/** Idiomas soportados por la aplicación */
+enum class AppLanguage(val code: String) {
+    SPANISH("es"),
+    ENGLISH("en");
+
+    companion object {
+        fun from(code: String?) = entries.firstOrNull { it.code == code } ?: SPANISH
     }
 }
 
@@ -40,8 +50,6 @@ data class BrandColors(
     val decorated: Boolean, // dibuja las formas orgánicas de la presentación
 )
 
-// Paleta de los logos: ciruela #5D2741, verde #005828, amarillo #FEDC7A,
-// morado #9034BD, hoja #00A85A, fondo claro #F7F7F7.
 val GreenBrand = BrandColors(
     dark = Color(0xFF005828),
     main = Color(0xFF005828),
@@ -85,8 +93,8 @@ val BorderColor: Color @Composable @ReadOnlyComposable get() = LocalBrand.curren
 val TextMain: Color @Composable @ReadOnlyComposable get() = LocalBrand.current.text
 val TextSoft: Color @Composable @ReadOnlyComposable get() = LocalBrand.current.textSoft
 
-// ---- Colores fijos (iguales en ambos temas) ----
-val Pulp = Color(0xFFFEDC7A)           // pulpa de la gulupa
+// ---- Colores fijos de marca ----
+val Pulp = Color(0xFFFEDC7A)           // pulpa de gulupa
 val Seed = Color(0xFF1A1A1A)
 val LeafGreen = Color(0xFF00A85A)
 val WarnBg = Color(0xFFFFF4D6)
@@ -94,12 +102,15 @@ val WarnText = Color(0xFFD35400)
 val GulupaPurple = Color(0xFF9034BD)
 val Neutral = Color(0xFF7A7A7A)
 
-// Colores por tipo de daño (leyendas del mockup): no cambian con el tema.
-val DamageScab = Color(0xFFE53935)       // Roña
-val DamageMechanical = Color(0xFF2F80ED) // Daño mecánico
-val DamageThrips = Color(0xFFF2994A)     // Trips
-val DamageMildew = Color(0xFF8E44AD)     // Mildiu polvoso (modelo actual)
-val Healthy = Color(0xFF2E9E44)          // Tejido sano
+// Colores específicos del Catálogo de Daños Reales Gulupa YOLO26n-seg:
+val DamageFruit = Color(0xFF4CAF50)        // Fruto base
+val DamageScab = Color(0xFFE53935)         // Sarna / Roña (Rojo / Pardo)
+val DamageAnthracnose = Color(0xFF8E24AA)  // Antracnosis (Púrpura necrótico)
+val DamageOilSpot = Color(0xFFFB8C00)      // Mancha de aceite (Ámbar / Naranja aceitoso)
+val DamageMechanical = Color(0xFF1E88E5)   // Daño mecánico
+val DamageThrips = Color(0xFFFFB300)       // Trips
+val DamageMildew = Color(0xFF7E57C2)       // Mildiu
+val Healthy = Color(0xFF2E9E44)            // Fruto sano
 
 private fun scheme(b: BrandColors) = lightColorScheme(
     primary = b.dark,
