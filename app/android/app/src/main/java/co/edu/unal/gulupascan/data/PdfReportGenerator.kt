@@ -3,6 +3,7 @@ package co.edu.unal.gulupascan.data
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
@@ -30,7 +31,7 @@ object PdfReportGenerator {
         // Página A4 estándar: 595 x 842 puntos
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
         val page = doc.startPage(pageInfo)
-        val canvas = page.canvas
+        val canvas: Canvas = page.canvas
 
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
@@ -290,7 +291,7 @@ object PdfReportGenerator {
         outFile
     }
 
-    private fun drawPhotoCard(canvas: Canvas, paint: Paint, title: String, filePath: String?, rect: RectF) {
+    private fun drawPhotoCard(canvas: android.graphics.Canvas, paint: Paint, title: String, filePath: String?, rect: RectF) {
         // Fondo tarjeta foto
         paint.color = Color.WHITE
         canvas.drawRoundRect(rect, 8f, 8f, paint)
@@ -325,7 +326,7 @@ object PdfReportGenerator {
         }
     }
 
-    private fun drawMetricLine(canvas: Canvas, paint: Paint, x: Float, y: Float, label: String, value: String) {
+    private fun drawMetricLine(canvas: android.graphics.Canvas, paint: Paint, x: Float, y: Float, label: String, value: String) {
         paint.color = Color.rgb(100, 95, 105)
         paint.textSize = 9.5f
         paint.isFakeBoldText = false
