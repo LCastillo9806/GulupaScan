@@ -1,21 +1,27 @@
 package co.edu.unal.gulupascan.data
 
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Base64
 import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import kotlin.math.max
 
 object ImageUtils {
 
     /**
      * Lee una imagen (cámara o galería), corrige la rotación EXIF, la reduce a [maxSide]
-     * y la devuelve como JPEG. Así se envía menos información por la red.
+     * y la devuelve como JPEG.
      */
     fun loadAsJpeg(context: Context, uri: Uri, maxSide: Int = 1600, quality: Int = 90): ByteArray {
         val resolver = context.contentResolver
@@ -65,5 +71,40 @@ object ImageUtils {
             val bytes = Base64.decode(b64, Base64.DEFAULT)
             File(dir, name).apply { writeBytes(bytes) }.absolutePath
         }.getOrNull()
+    }
+
+    /**
+     * Guarda una imagen en la galería pública del dispositivo (DCIM/GulupaScan o Pictures/GulupaScan)
+     * para que el usuario pueda tenerla en su teléfono y usarla en cualquier otra app.
+     */
+    fun saveImageToGallery(context: Context, sourceFile: File, displayName: String): Boolean {
+        if (!sourceFile.exists()) return false
+        return runCatching {
+            val resolver = context.contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, "$displayName.jpg")
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/GulupaScan")
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
+                }
+            }
+
+            val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                ?: return false
+
+            resolver.openOutputStream(uri)?.use { out ->
+                FileInputStream(sourceFile).use { input ->
+                    input.copyTo(out)
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                contentValues.clear()
+                contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                resolver.update(uri, contentValues, null, null)
+            }
+            true
+        }.getOrDefault(false)
     }
 }

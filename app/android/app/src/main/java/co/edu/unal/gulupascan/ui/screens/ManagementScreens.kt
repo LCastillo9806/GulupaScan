@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Groups
@@ -41,6 +42,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -81,6 +83,7 @@ import co.edu.unal.gulupascan.ui.components.StepBadge
 import co.edu.unal.gulupascan.ui.components.pct
 import co.edu.unal.gulupascan.ui.components.shareContent
 import co.edu.unal.gulupascan.ui.theme.AppBg
+import co.edu.unal.gulupascan.ui.theme.AppLanguage
 import co.edu.unal.gulupascan.ui.theme.Brand
 import co.edu.unal.gulupascan.ui.theme.BrandDark
 import co.edu.unal.gulupascan.ui.theme.BrandSoft
@@ -205,7 +208,7 @@ fun AlertsScreen(items: List<Analysis>, onOpen: (Analysis) -> Unit, onBack: (() 
 }
 
 // ---------------------------------------------------------------------------
-// Perfil de usuario (lámina 2, pantalla 2)
+// Perfil de usuario
 // ---------------------------------------------------------------------------
 @Composable
 fun ProfileScreen(
@@ -274,13 +277,14 @@ private fun MenuRow(icon: ImageVector, text: String, onClick: () -> Unit, chevro
 }
 
 // ---------------------------------------------------------------------------
-// Configuración de cuenta + servidor
+// Configuración de cuenta + Tema + Idioma + Modo Offline
 // ---------------------------------------------------------------------------
 @Composable
 fun SettingsScreen(
     profile: UserProfile,
     settings: AppSettings,
     onTheme: (AppTheme) -> Unit,
+    onLanguage: (AppLanguage) -> Unit,
     onSave: (UserProfile, AppSettings) -> Unit,
     onBack: () -> Unit,
 ) {
@@ -291,16 +295,28 @@ fun SettingsScreen(
     var phone by remember(profile) { mutableStateOf(profile.phone) }
     var server by remember(settings.serverUrl) { mutableStateOf(settings.serverUrl) }
     var demo by remember(settings.demoMode) { mutableStateOf(settings.demoMode) }
+    var offline by remember(settings.offlineMode) { mutableStateOf(settings.offlineMode) }
 
     Scaffold(topBar = { GsTopBar(stringResource(R.string.set_title), onBack) }) { pad ->
         Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            // Tema (se aplica al instante)
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
+            // Selector de Idioma (Español / English)
+            Text(stringResource(R.string.set_language), style = MaterialTheme.typography.titleSmall, color = Brand)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                LanguageOption(AppLanguage.SPANISH, R.string.lang_es, settings.language == AppLanguage.SPANISH, Modifier.weight(1f)) { onLanguage(it) }
+                LanguageOption(AppLanguage.ENGLISH, R.string.lang_en, settings.language == AppLanguage.ENGLISH, Modifier.weight(1f)) { onLanguage(it) }
+            }
+
+            Spacer(Modifier.height(4.dp))
+
+            // Selector de Tema (Verde / Morado)
             Text(stringResource(R.string.set_theme), style = MaterialTheme.typography.titleSmall, color = Brand)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 ThemeOption(AppTheme.GREEN, R.string.theme_green, settings.theme == AppTheme.GREEN, Modifier.weight(1f)) { onTheme(it) }
                 ThemeOption(AppTheme.PURPLE, R.string.theme_purple, settings.theme == AppTheme.PURPLE, Modifier.weight(1f)) { onTheme(it) }
             }
+
             Spacer(Modifier.height(8.dp))
             Text(stringResource(R.string.set_profile), style = MaterialTheme.typography.titleSmall, color = Brand)
             Field(stringResource(R.string.auth_name), name) { name = it }
@@ -311,105 +327,146 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(8.dp))
             Text(stringResource(R.string.set_analysis), style = MaterialTheme.typography.titleSmall, color = Brand)
-            Field(stringResource(R.string.set_server), server) { server = it }
-            TextButton(onClick = { server = BuildConfig.DEFAULT_SERVER_URL }) {
-                Text(stringResource(R.string.set_server_reset), color = BrandDark)
+
+            // Switch Modo Offline
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.set_offline_mode), style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.set_offline_desc), style = MaterialTheme.typography.bodySmall, color = TextSoft)
+                }
+                Switch(
+                    checked = offline,
+                    onCheckedChange = { offline = it },
+                    colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = BrandDark),
+                )
             }
+
+            if (!offline) {
+                Field(stringResource(R.string.set_server), server) { server = it }
+                TextButton(onClick = { server = BuildConfig.DEFAULT_SERVER_URL }) {
+                    Text(stringResource(R.string.set_server_reset), color = BrandDark)
+                }
+            }
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(stringResource(R.string.set_demo), style = MaterialTheme.typography.bodyLarge)
                     Text(stringResource(R.string.set_demo_desc), style = MaterialTheme.typography.bodySmall, color = TextSoft)
                 }
-                Switch(demo, { demo = it }, colors = SwitchDefaults.colors(checkedTrackColor = BrandDark))
-            }
-            InfoNote(stringResource(R.string.set_server_note))
-            Spacer(Modifier.height(8.dp))
-            PrimaryButton(stringResource(R.string.save), {
-                onSave(
-                    profile.copy(name = name.trim(), role = role.trim(), location = location.trim(), hectares = hectares.trim(), phone = phone.trim()),
-                    settings.copy(serverUrl = server.trim(), demoMode = demo),
+                Switch(
+                    checked = demo,
+                    onCheckedChange = { demo = it },
+                    colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = BrandDark),
                 )
+            }
+
+            Spacer(Modifier.height(12.dp))
+            PrimaryButton(stringResource(R.string.save), onClick = {
+                val updatedProfile = profile.copy(name = name, role = role, location = location, hectares = hectares, phone = phone)
+                val updatedSettings = settings.copy(serverUrl = server, demoMode = demo, offlineMode = offline)
+                onSave(updatedProfile, updatedSettings)
             })
         }
     }
 }
 
 @Composable
-private fun ThemeOption(theme: AppTheme, label: Int, selected: Boolean, modifier: Modifier, onClick: (AppTheme) -> Unit) {
-    val b = brandOf(theme)
-    Column(
-        modifier.clip(RoundedCornerShape(14.dp))
-            .border(if (selected) 3.dp else 1.dp, if (selected) b.dark else BorderColor, RoundedCornerShape(14.dp))
-            .clickable { onClick(theme) }
-            .background(b.background)
-            .padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+private fun LanguageOption(
+    lang: AppLanguage,
+    labelRes: Int,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onSelect: (AppLanguage) -> Unit,
+) {
+    Surface(
+        modifier = modifier.clickable { onSelect(lang) },
+        shape = RoundedCornerShape(14.dp),
+        color = if (selected) BrandSoft else MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(2.dp, if (selected) BrandDark else BorderColor),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf(b.dark, b.mid, b.accent, b.soft).forEach { c ->
-                Box(Modifier.size(18.dp).clip(CircleShape).background(c).border(1.dp, b.border, CircleShape))
+        Row(
+            Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            if (selected) {
+                Icon(Icons.Outlined.Check, null, tint = BrandDark, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
             }
+            Text(stringResource(labelRes), style = MaterialTheme.typography.titleSmall, color = if (selected) BrandDark else TextSoft)
         }
-        Spacer(Modifier.height(8.dp))
-        GulupaLogo(size = 40.dp)
-        Spacer(Modifier.height(6.dp))
-        Text(stringResource(label), style = MaterialTheme.typography.titleSmall, color = b.dark)
-        if (selected) Text(stringResource(R.string.theme_active), style = MaterialTheme.typography.bodySmall, color = b.textSoft)
     }
 }
 
 @Composable
-private fun Field(label: String, value: String, onChange: (String) -> Unit) {
-    OutlinedTextField(value, onChange, Modifier.fillMaxWidth(), label = { Text(label) }, singleLine = true, shape = RoundedCornerShape(10.dp))
+private fun ThemeOption(
+    theme: AppTheme,
+    labelRes: Int,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onSelect: (AppTheme) -> Unit,
+) {
+    val brand = brandOf(theme)
+    Surface(
+        modifier = modifier.clickable { onSelect(theme) },
+        shape = RoundedCornerShape(14.dp),
+        color = if (selected) brand.soft else MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(2.dp, if (selected) brand.dark else BorderColor),
+    ) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            ColorDot(brand.dark, 20.dp)
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text(stringResource(labelRes), style = MaterialTheme.typography.titleSmall, color = if (selected) brand.dark else TextSoft)
+                if (selected) Text(stringResource(R.string.theme_active), style = MaterialTheme.typography.bodySmall, color = brand.dark)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Field(label: String, value: String, onValue: (String) -> Unit) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValue,
+        label = { Text(label) },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        singleLine = true,
+    )
 }
 
 // ---------------------------------------------------------------------------
-// Acerca de nosotros (lámina 2, pantalla 3)
+// Acerca de nosotros
 // ---------------------------------------------------------------------------
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
     Scaffold(topBar = { GsTopBar(stringResource(R.string.about_title), onBack) }) { pad ->
-        Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)) {
             BrandHeader(stringResource(R.string.about_commitment))
-
-            Text(stringResource(R.string.about_mission_t), style = MaterialTheme.typography.titleLarge)
-            Text(stringResource(R.string.about_mission), style = MaterialTheme.typography.bodyMedium)
-
-            Text(stringResource(R.string.about_team_t), style = MaterialTheme.typography.titleLarge)
-            listOf(
-                "Daniel Felipe Ahumada Hernández",
-                "Diego Humberto Lavado González",
-                "Jesús Enrique Flores Riera",
-                "Luis Alberto Castillo Sanabria",
-            ).forEach { member ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(34.dp).clip(CircleShape).background(BrandSoft), contentAlignment = Alignment.Center) {
-                        Text(member.split(" ").let { "${it[0][0]}${it.getOrNull(2)?.get(0) ?: ""}" }, color = BrandDark, fontWeight = FontWeight.Bold)
-                    }
-                    Spacer(Modifier.width(10.dp))
-                    Text(member, style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-            Text(stringResource(R.string.about_course), style = MaterialTheme.typography.bodySmall, color = TextSoft)
-
-            Text(stringResource(R.string.about_how_t), style = MaterialTheme.typography.titleLarge)
-            listOf(R.string.how1, R.string.how2, R.string.how3, R.string.how4, R.string.how5).forEachIndexed { i, res ->
+            Section(stringResource(R.string.about_mission_t), stringResource(R.string.about_mission))
+            Section(stringResource(R.string.about_team_t), stringResource(R.string.about_course))
+            Text(stringResource(R.string.about_how_t), style = MaterialTheme.typography.titleSmall, color = Brand)
+            val steps = listOf(R.string.how1, R.string.how2, R.string.how3, R.string.how4, R.string.how5)
+            steps.forEachIndexed { i, res ->
                 Row(verticalAlignment = Alignment.Top) {
-                    StepBadge(i + 1, 26.dp)
+                    StepBadge(i + 1)
                     Spacer(Modifier.width(10.dp))
-                    Text(stringResource(res), Modifier.offset(y = 3.dp), style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(res), style = MaterialTheme.typography.bodyMedium)
                 }
             }
-
-            Text(stringResource(R.string.about_scope_t), style = MaterialTheme.typography.titleLarge)
-            InfoNote(stringResource(R.string.about_scope))
-
+            Section(stringResource(R.string.about_scope_t), stringResource(R.string.about_scope))
             Text(stringResource(R.string.about_base), style = MaterialTheme.typography.bodySmall, color = TextSoft)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                ColorDot(Color(0xFF4CAF50), 8.dp); Spacer(Modifier.width(6.dp))
-                Text("v${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = TextSoft)
-            }
         }
+    }
+}
+
+@Composable
+private fun Section(title: String, body: String) {
+    Column {
+        Text(title, style = MaterialTheme.typography.titleSmall, color = Brand)
+        Spacer(Modifier.height(4.dp))
+        Text(body, style = MaterialTheme.typography.bodyMedium)
     }
 }

@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import co.edu.unal.gulupascan.BuildConfig
+import co.edu.unal.gulupascan.ui.theme.AppLanguage
 import co.edu.unal.gulupascan.ui.theme.AppTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -27,13 +28,13 @@ data class UserProfile(
 data class AppSettings(
     val serverUrl: String = BuildConfig.DEFAULT_SERVER_URL,
     val demoMode: Boolean = false,
+    val offlineMode: Boolean = true, // Por defecto inferencia local con ONNX
     val theme: AppTheme = AppTheme.GREEN,
+    val language: AppLanguage = AppLanguage.SPANISH,
 )
 
 /**
  * Sesión y preferencias guardadas en el teléfono (DataStore).
- * NOTA: el registro/inicio de sesión es LOCAL (prototipo). Para producción
- * se debe reemplazar por un backend de autenticación (p. ej. Firebase Auth).
  */
 class SessionStore(private val context: Context) {
 
@@ -48,7 +49,9 @@ class SessionStore(private val context: Context) {
         val phone = stringPreferencesKey("phone")
         val server = stringPreferencesKey("server_url")
         val demo = booleanPreferencesKey("demo_mode")
+        val offline = booleanPreferencesKey("offline_mode")
         val theme = stringPreferencesKey("theme")
+        val language = stringPreferencesKey("language")
     }
 
     val loggedIn: Flow<Boolean> = context.dataStore.data.map { it[K.loggedIn] ?: false }
@@ -59,7 +62,9 @@ class SessionStore(private val context: Context) {
         AppSettings(
             serverUrl = it[K.server]?.takeIf { s -> s.isNotBlank() } ?: BuildConfig.DEFAULT_SERVER_URL,
             demoMode = it[K.demo] ?: false,
+            offlineMode = it[K.offline] ?: true,
             theme = AppTheme.from(it[K.theme]),
+            language = AppLanguage.from(it[K.language]),
         )
     }
 
@@ -97,10 +102,14 @@ class SessionStore(private val context: Context) {
     suspend fun updateSettings(s: AppSettings) = context.dataStore.edit {
         it[K.server] = s.serverUrl.trim()
         it[K.demo] = s.demoMode
+        it[K.offline] = s.offlineMode
         it[K.theme] = s.theme.id
+        it[K.language] = s.language.code
     }
 
     suspend fun setTheme(t: AppTheme) = context.dataStore.edit { it[K.theme] = t.id }
+
+    suspend fun setLanguage(l: AppLanguage) = context.dataStore.edit { it[K.language] = l.code }
 
     private fun Preferences.toProfile() = UserProfile(
         name = this[K.name].orEmpty(),

@@ -1,5 +1,6 @@
 package co.edu.unal.gulupascan.ui.screens
 
+import android.widget.Toast
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -30,7 +31,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.BookmarkAdded
 import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.WarningAmber
@@ -48,7 +51,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,9 +95,9 @@ import co.edu.unal.gulupascan.ui.theme.GulupaPurple
 import co.edu.unal.gulupascan.ui.theme.Healthy
 import co.edu.unal.gulupascan.ui.theme.TextSoft
 import co.edu.unal.gulupascan.ui.theme.WarnBg
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Locale
-import kotlinx.coroutines.delay
 
 // ---------------------------------------------------------------------------
 // Paso 2: Procesando imagen
@@ -112,89 +117,46 @@ fun ProcessingScreen(
     Scaffold(topBar = { GsTopBar(stringResource(R.string.proc_title), onBack = onCancel) }) { pad ->
         Column(Modifier.padding(pad).fillMaxSize().padding(16.dp)) {
             if (state !is ScanState.Failed) {
-                // Transición de colores de la identidad mientras corre la inferencia.
                 AnimatedBrandLockup(
                     Modifier.fillMaxWidth().height(190.dp).clip(RoundedCornerShape(20.dp)),
                     loop = true,
                     logoSize = 92.dp,
                     wordHeight = 28.dp,
-                    tagline = stringResource(R.string.proc_analyzing),
-                    taglineSize = 19.sp,
                 )
-                Spacer(Modifier.height(12.dp))
+            } else if (preview != null) {
+                Box(Modifier.fillMaxWidth().height(190.dp).clip(RoundedCornerShape(20.dp))) {
+                    PathImage(preview, Modifier.fillMaxSize())
+                }
             }
-            Box(Modifier.fillMaxWidth().weight(1f).clip(RoundedCornerShape(16.dp))) {
-                PathImage(preview, Modifier.fillMaxSize())
-                if (state is ScanState.Processing) ScanLine(Modifier.fillMaxSize())
-            }
-            Spacer(Modifier.height(16.dp))
+
+            Spacer(Modifier.height(20.dp))
+
             when (state) {
-                is ScanState.Failed -> FailedBox(state, onRetry, onTryDemo)
-                else -> ProgressBox(onCancel)
+                is ScanState.Processing -> {
+                    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(stringResource(R.string.proc_segmenting), style = MaterialTheme.typography.titleMedium)
+                        Spacer(Modifier.height(8.dp))
+                        Text(stringResource(R.string.proc_wait), style = MaterialTheme.typography.bodySmall, color = TextSoft, textAlign = TextAlign.Center)
+                        Spacer(Modifier.height(20.dp))
+                        LinearProgressIndicator(Modifier.fillMaxWidth(), color = BrandDark, trackColor = BrandSoft)
+                    }
+                }
+                is ScanState.Failed -> {
+                    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Outlined.ErrorOutline, null, tint = DamageScab, modifier = Modifier.size(48.dp))
+                        Spacer(Modifier.height(8.dp))
+                        Text(state.message, style = MaterialTheme.typography.bodyMedium, color = DamageScab, textAlign = TextAlign.Center)
+                        Spacer(Modifier.height(16.dp))
+                        PrimaryButton(stringResource(R.string.proc_retake), onRetry)
+                        if (state.canTryDemo) {
+                            Spacer(Modifier.height(8.dp))
+                            SecondaryButton(stringResource(R.string.proc_try_demo), onTryDemo)
+                        }
+                    }
+                }
+                else -> {}
             }
         }
-    }
-}
-
-@Composable
-private fun ProgressBox(onCancel: () -> Unit) {
-    // Progreso simulado (el servidor no informa avance): se acerca a 95 % mientras espera.
-    var progress by remember { mutableFloatStateOf(0.05f) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(250)
-            progress += (0.95f - progress) * 0.04f
-        }
-    }
-    Column {
-        Text(stringResource(R.string.proc_segmenting), style = MaterialTheme.typography.bodyMedium)
-        Spacer(Modifier.height(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier.weight(1f).height(10.dp).clip(RoundedCornerShape(5.dp)),
-                color = Healthy,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-            )
-            Spacer(Modifier.width(10.dp))
-            Text("${(progress * 100).toInt()} %", style = MaterialTheme.typography.bodySmall)
-        }
-        Spacer(Modifier.height(6.dp))
-        Text(stringResource(R.string.proc_wait), style = MaterialTheme.typography.bodySmall, color = TextSoft)
-        Spacer(Modifier.height(14.dp))
-        SecondaryButton(stringResource(R.string.cancel), onCancel)
-    }
-}
-
-@Composable
-private fun FailedBox(state: ScanState.Failed, onRetry: () -> Unit, onTryDemo: () -> Unit) {
-    Column {
-        Row(verticalAlignment = Alignment.Top) {
-            Icon(Icons.Outlined.ErrorOutline, null, tint = DamageScab)
-            Spacer(Modifier.width(8.dp))
-            Text(state.message, style = MaterialTheme.typography.bodyMedium)
-        }
-        Spacer(Modifier.height(14.dp))
-        PrimaryButton(stringResource(R.string.proc_retake), onRetry)
-        if (state.canTryDemo) {
-            Spacer(Modifier.height(8.dp))
-            SecondaryButton(stringResource(R.string.proc_try_demo), onTryDemo, icon = Icons.Outlined.Science)
-        }
-    }
-}
-
-@Composable
-private fun ScanLine(modifier: Modifier) {
-    val t = rememberInfiniteTransition(label = "scan")
-    val y by t.animateFloat(0f, 1f, infiniteRepeatable(tween(1600, easing = LinearEasing), RepeatMode.Reverse), label = "y")
-    Canvas(modifier) {
-        val yy = size.height * y
-        drawRect(
-            Brush.verticalGradient(listOf(Color.Transparent, Healthy.copy(alpha = 0.35f)), startY = yy - 120f, endY = yy),
-            topLeft = Offset(0f, (yy - 120f).coerceAtLeast(0f)),
-            size = androidx.compose.ui.geometry.Size(size.width, minOf(120f, yy)),
-        )
-        drawLine(Healthy, Offset(0f, yy), Offset(size.width, yy), strokeWidth = 4f)
     }
 }
 
@@ -202,31 +164,40 @@ private fun ScanLine(modifier: Modifier) {
 // Paso 3: Tipos de daño detectados
 // ---------------------------------------------------------------------------
 @Composable
-fun DamageListScreen(a: Analysis, onBack: () -> Unit, onDamage: (String) -> Unit, onResult: () -> Unit) {
+fun DamageListScreen(
+    a: Analysis,
+    onBack: () -> Unit,
+    onDamage: (String) -> Unit,
+    onResult: () -> Unit,
+) {
     Scaffold(topBar = { GsTopBar(stringResource(R.string.dl_title), onBack) }) { pad ->
-        Column(Modifier.padding(pad).fillMaxSize()) {
-            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                ModelChip(a)
-                val list = a.harmfulDamages + a.damages.filter { it.key == DamageCatalog.HEALTHY }
-                if (list.isEmpty()) InfoNote(stringResource(R.string.dl_none))
-                list.forEach { d -> DamageRow(a, d) { onDamage(d.key) } }
+        Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(Modifier.fillMaxWidth().aspectRatio(1.4f).clip(RoundedCornerShape(16.dp))) {
+                PathImage(a.images.result ?: a.images.crop ?: a.images.original, Modifier.fillMaxSize())
             }
-            PrimaryButton(stringResource(R.string.dl_full_result), onResult, Modifier.padding(16.dp))
+            ModelChip(a)
+
+            val rows = a.harmfulDamages + a.damages.filter { it.key == DamageCatalog.HEALTHY }
+            if (rows.isEmpty()) {
+                InfoNote(stringResource(R.string.dl_none))
+            } else {
+                rows.forEach { d ->
+                    DamageCard(d) { onDamage(d.key) }
+                }
+            }
+
+            Spacer(Modifier.weight(1f, fill = false))
+            PrimaryButton(stringResource(R.string.dl_full_result), onResult)
         }
     }
 }
 
 @Composable
-private fun DamageRow(a: Analysis, d: Damage, onClick: () -> Unit) {
+private fun DamageCard(d: Damage, onClick: () -> Unit) {
     val info = DamageCatalog.get(d.key)
-    val healthy = d.key == DamageCatalog.HEALTHY
-    GsCard(Modifier.clickable(onClick = onClick), color = if (healthy) BrandSoft else MaterialTheme.colorScheme.surface) {
-        Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(72.dp).clip(RoundedCornerShape(10.dp)).border(2.dp, info.color, RoundedCornerShape(10.dp))) {
-                PathImage(a.images.leaf ?: a.thumbnail, Modifier.fillMaxSize())
-                if (!healthy) a.images.overlayFor(d.key)?.let { PathImage(it, Modifier.fillMaxSize().alpha(0.7f)) }
-            }
-            Spacer(Modifier.width(12.dp))
+    GsCard(Modifier.clickable(onClick = onClick)) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ColorDot(info.color)
@@ -244,12 +215,15 @@ private fun DamageRow(a: Analysis, d: Damage, onClick: () -> Unit) {
 
 @Composable
 private fun ModelChip(a: Analysis) {
-    val text = if (a.isDemo) stringResource(R.string.chip_demo)
-    else stringResource(
-        R.string.chip_model,
-        listOfNotNull(a.cropName, a.diseaseName).joinToString(" · ").ifBlank { a.modelClass.orEmpty() },
-        (a.modelConfidence * 100).toInt(),
-    )
+    val text = when {
+        a.isDemo -> stringResource(R.string.chip_demo)
+        a.source.contains("onnx") -> stringResource(R.string.chip_offline)
+        else -> stringResource(
+            R.string.chip_model,
+            listOfNotNull(a.cropName, a.diseaseName).joinToString(" · ").ifBlank { a.modelClass.orEmpty() },
+            (a.modelConfidence * 100).toInt(),
+        )
+    }
     Surface(shape = RoundedCornerShape(50), color = if (a.isDemo) GulupaPurple.copy(alpha = 0.12f) else BrandSoft) {
         Text(text, Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.bodySmall,
             color = if (a.isDemo) GulupaPurple else BrandDark)
@@ -271,23 +245,9 @@ fun DamageDetailScreen(a: Analysis, key: String, onBack: () -> Unit) {
     Scaffold(topBar = { GsTopBar(stringResource(R.string.dd_title), onBack) }) { pad ->
         Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState())) {
             Box(Modifier.fillMaxWidth().aspectRatio(1.3f).background(Color.Black)) {
-                PathImage(a.images.leaf ?: a.images.crop ?: a.images.original, Modifier.fillMaxSize(), ContentScale.Fit)
-                if (overlay != null) {
-                    PathImage(overlay, Modifier.fillMaxSize().alpha(opacity), ContentScale.Fit)
-                }
+                PathImage(a.images.result ?: a.images.leaf ?: a.images.crop ?: a.images.original, Modifier.fillMaxSize(), ContentScale.Fit)
             }
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (overlay != null) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(R.string.dd_opacity), style = MaterialTheme.typography.bodySmall)
-                        Spacer(Modifier.width(12.dp))
-                        Slider(opacity, { opacity = it }, Modifier.weight(1f),
-                            colors = SliderDefaults.colors(thumbColor = BrandDark, activeTrackColor = Healthy))
-                    }
-                } else if (!healthy) {
-                    InfoNote(stringResource(R.string.dd_no_mask))
-                }
-
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ColorDot(info.color, 18.dp)
                     Spacer(Modifier.width(10.dp))
@@ -324,7 +284,7 @@ fun DamageDetailScreen(a: Analysis, key: String, onBack: () -> Unit) {
 }
 
 // ---------------------------------------------------------------------------
-// Paso 5: Resultado final y recomendaciones
+// Paso 5: Resultado final, reporte PDF, descarga de imágenes y recomendaciones
 // ---------------------------------------------------------------------------
 @Composable
 fun ResultScreen(
@@ -333,11 +293,15 @@ fun ResultScreen(
     onDamage: (String) -> Unit,
     onSave: () -> Unit,
     onTech: () -> Unit,
+    onExportPdf: suspend () -> File,
+    onSaveImage: (filePath: String?, name: String) -> Boolean,
     onNewScan: () -> Unit,
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val cls = a.classification
     val shareText = buildShareText(a)
+    var isGeneratingPdf by remember { mutableStateOf(false) }
 
     Scaffold(topBar = { GsTopBar(stringResource(R.string.res_title), onBack) }) { pad ->
         Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -347,7 +311,7 @@ fun ResultScreen(
             }
             ModelChip(a)
 
-            // Clasificación general
+            // Clasificación general de calidad
             Surface(shape = RoundedCornerShape(14.dp), color = if (cls == Classification.HEALTHY) BrandSoft else WarnBg) {
                 Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.Top) {
                     Box(Modifier.size(36.dp).clip(CircleShape).background(cls.color.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
@@ -383,15 +347,65 @@ fun ResultScreen(
                 }
             }
 
+            // Botón Guardar en el Historial
             PrimaryButton(
                 stringResource(if (a.saved) R.string.res_saved else R.string.res_save),
                 onSave, enabled = !a.saved,
                 icon = if (a.saved) Icons.Outlined.BookmarkAdded else Icons.Outlined.BookmarkBorder,
             )
+
+            // Botón Exportar PDF
+            SecondaryButton(
+                if (isGeneratingPdf) stringResource(R.string.res_pdf_generating) else stringResource(R.string.res_export_pdf),
+                onClick = {
+                    if (!isGeneratingPdf) {
+                        isGeneratingPdf = true
+                        scope.launch {
+                            try {
+                                val pdfFile = onExportPdf()
+                                shareContent(context, context.getString(R.string.share_header), pdfFile, "application/pdf")
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                            } finally {
+                                isGeneratingPdf = false
+                            }
+                        }
+                    }
+                },
+                icon = Icons.Outlined.PictureAsPdf,
+            )
+
+            // Descargar imágenes (original y procesada) a la galería
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SecondaryButton(
+                    stringResource(R.string.res_download_original),
+                    onClick = {
+                        val ok = onSaveImage(a.images.original, "Gulupa_${a.id}_original")
+                        val msg = if (ok) context.getString(R.string.res_image_saved) else "No se pudo guardar la imagen"
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Outlined.Download,
+                )
+                SecondaryButton(
+                    stringResource(R.string.res_download_processed),
+                    onClick = {
+                        val path = a.images.result ?: a.images.crop ?: a.images.original
+                        val ok = onSaveImage(path, "Gulupa_${a.id}_procesada")
+                        val msg = if (ok) context.getString(R.string.res_image_saved) else "No se pudo guardar la imagen"
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Outlined.Download,
+                )
+            }
+
+            // Compartir por Redes / WhatsApp con foto adjunta
             SecondaryButton(stringResource(R.string.res_share), {
                 val img = (a.images.result ?: a.images.crop ?: a.images.original)?.let { File(it) }
                 shareContent(context, shareText, img)
             }, icon = Icons.Outlined.Share)
+
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 TextButton(onClick = onTech) { Text(stringResource(R.string.res_tech), color = BrandDark) }
                 TextButton(onClick = onNewScan) { Text(stringResource(R.string.res_new), color = BrandDark) }
@@ -405,6 +419,7 @@ private fun buildShareText(a: Analysis): String {
     val sb = StringBuilder()
     sb.append(stringResource(R.string.share_header)).append('\n')
     sb.append(stringResource(R.string.res_general)).append(": ").append(stringResource(a.classification.title)).append('\n')
+    sb.append("Severidad total: ").append(pct(a.totalDamagePct)).append('\n')
     (a.harmfulDamages + a.damages.filter { it.key == DamageCatalog.HEALTHY }).forEach {
         sb.append("• ").append(damageName(it.key)).append(": ").append(pct(it.pct)).append('\n')
     }
@@ -414,17 +429,15 @@ private fun buildShareText(a: Analysis): String {
 }
 
 // ---------------------------------------------------------------------------
-// Detalles técnicos (lámina 1, paso 5 "Detalles")
+// Detalles técnicos con métricas exhaustivas
 // ---------------------------------------------------------------------------
 @Composable
 fun TechDetailsScreen(a: Analysis, onBack: () -> Unit) {
     val imgs = a.images
     val tiles = listOf(
         R.string.tech_original to imgs.original,
-        R.string.tech_leaf to imgs.leaf,
-        R.string.tech_mask to imgs.mask,
+        R.string.tech_leaf to imgs.crop,
         R.string.tech_result to imgs.result,
-        R.string.tech_hue to imgs.hue,
         R.string.tech_crop to imgs.crop,
     ).filter { it.second != null }
 
@@ -443,16 +456,10 @@ fun TechDetailsScreen(a: Analysis, onBack: () -> Unit) {
                     if (pair.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
-            if (tiles.size <= 1) InfoNote(stringResource(R.string.tech_no_layers))
 
             Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                Legend(DamageScab, stringResource(R.string.tech_legend_damage))
-                Legend(Healthy, stringResource(R.string.tech_legend_healthy))
-            }
-
-            if (imgs.panel != null) {
-                Text(stringResource(R.string.tech_panel), style = MaterialTheme.typography.titleSmall)
-                PathImage(imgs.panel, Modifier.fillMaxWidth().aspectRatio(10f / 6f).clip(RoundedCornerShape(8.dp)), ContentScale.Fit)
+                Legend(DamageScab, stringResource(R.string.dmg_scab))
+                Legend(Healthy, stringResource(R.string.dmg_healthy))
             }
 
             GsCard {
@@ -460,16 +467,25 @@ fun TechDetailsScreen(a: Analysis, onBack: () -> Unit) {
                     Text(stringResource(R.string.tech_metrics), style = MaterialTheme.typography.titleSmall)
                     Metric(stringResource(R.string.tech_source), when {
                         a.isDemo -> stringResource(R.string.chip_demo)
-                        a.modelClass?.startsWith("gulupa") == true -> "YOLO11-seg (gulupa)"
-                        else -> "YOLO11 + Chan-Vese (PowderyVision7)"
+                        a.source.contains("onnx") -> "YOLO26n-seg On-Device (ONNX CPU)"
+                        else -> "Servidor remoto"
                     })
                     a.modelClass?.let { Metric(stringResource(R.string.tech_class), it) }
-                    if (!a.isDemo) {
-                        Metric(stringResource(R.string.tech_conf), "${(a.modelConfidence * 100).toInt()} %")
-                        if (a.leafConfidence > 0) Metric(stringResource(R.string.tech_leaf_conf), "${(a.leafConfidence * 100).toInt()} %")
-                        Metric(stringResource(R.string.tech_time_cls), "${a.clsTimeMs.toInt()} ms")
-                        Metric(stringResource(R.string.tech_time_seg), "${a.segTimeMs.toInt()} ms")
+                    Metric(stringResource(R.string.tech_conf), "${(a.modelConfidence * 100).toInt()} %")
+                    if (a.leafConfidence > 0) Metric(stringResource(R.string.tech_leaf_conf), "${(a.leafConfidence * 100).toInt()} %")
+
+                    // Tiempos de ejecución y FPS
+                    Metric(stringResource(R.string.tech_time_cls), "${a.clsTimeMs.toInt()} ms")
+                    Metric(stringResource(R.string.tech_time_seg), "${a.segTimeMs.toInt()} ms")
+                    val totalMs = (a.clsTimeMs + a.segTimeMs).toInt()
+                    Metric(stringResource(R.string.tech_time_total), "$totalMs ms")
+                    if (totalMs > 0) {
+                        Metric(stringResource(R.string.tech_fps), String.format(Locale.US, "%.1f FPS", 1000.0 / totalMs))
                     }
+
+                    // Métricas de entrada y peso
+                    Metric(stringResource(R.string.tech_input_size), "Modelo A: 480x480 | Modelo B: 640x640")
+                    Metric(stringResource(R.string.tech_model_size), "gulupa_fruto: 3.1 MB | gulupa_lesiones: 3.2 MB")
                     Metric(stringResource(R.string.tech_total), pct(a.totalDamagePct))
                 }
             }
@@ -494,7 +510,6 @@ private fun Metric(label: String, value: String) {
     }
 }
 
-// ---------------------------------------------------------------------------
 @Composable
 fun damageName(key: String): String {
     val info = DamageCatalog.get(key)
@@ -502,4 +517,3 @@ fun damageName(key: String): String {
 }
 
 private fun fmt(v: Double) = String.format(Locale.getDefault(), "%.1f", v)
-

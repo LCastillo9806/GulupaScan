@@ -3,6 +3,7 @@ package co.edu.unal.gulupascan.data
 import co.edu.unal.gulupascan.domain.Analysis
 import co.edu.unal.gulupascan.domain.AnalysisImages
 import co.edu.unal.gulupascan.domain.Damage
+import co.edu.unal.gulupascan.domain.DamageCatalog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-/** Error con mensaje listo para mostrar al usuario (viene del pipeline, bilingüe). */
+/** Error con mensaje listo para mostrar al usuario. */
 class AnalysisException(message: String) : Exception(message)
 
 interface Analyzer {
@@ -34,7 +35,7 @@ interface Analyzer {
 }
 
 // ---------------------------------------------------------------------------
-// Servidor: api.py (PowderyVision7 / YOLO11 + Chan-Vese)
+// Servidor opcional: api.py (PowderyVision7 / YOLO11 + Chan-Vese)
 // ---------------------------------------------------------------------------
 
 @Serializable
@@ -132,7 +133,6 @@ class RemoteAnalyzer(private val baseUrl: String) : Analyzer {
         if (isSpanish()) r.msgEs ?: r.msg else r.msgEn ?: r.msg
 
     companion object {
-        // Los Spaces gratuitos de Hugging Face pueden tardar en "despertar": timeouts amplios.
         private val client = OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
@@ -141,7 +141,6 @@ class RemoteAnalyzer(private val baseUrl: String) : Analyzer {
     }
 }
 
-/** Llamada OkHttp cancelable desde corrutinas (el botón "Cancelar" corta la petición). */
 private suspend fun Call.await(): String = suspendCancellableCoroutine { cont ->
     cont.invokeOnCancellation { runCatching { cancel() } }
     enqueue(object : Callback {
@@ -152,7 +151,6 @@ private suspend fun Call.await(): String = suspendCancellableCoroutine { cont ->
         override fun onResponse(call: Call, response: Response) {
             response.use {
                 val text = it.body?.string().orEmpty()
-                // Los errores 4xx/5xx de api.py también traen JSON con "msg".
                 if (text.trimStart().startsWith("{")) cont.resume(text)
                 else cont.resumeWithException(AnalysisException("HTTP ${it.code}: el servidor no tiene /api/analyze"))
             }
@@ -161,25 +159,25 @@ private suspend fun Call.await(): String = suspendCancellableCoroutine { cont ->
 }
 
 // ---------------------------------------------------------------------------
-// Modo demostración: reproduce los valores del mockup sin servidor.
+// Modo demostración: reproduce los valores del catálogo real sin servidor.
 // ---------------------------------------------------------------------------
 class DemoAnalyzer : Analyzer {
     override suspend fun analyze(id: String, jpeg: ByteArray, workDir: File): Analysis {
-        delay(2500)
+        delay(2000)
         val original = File(workDir, "original.jpg").absolutePath
         return Analysis(
             id = id,
             createdAt = System.currentTimeMillis(),
             source = Analysis.SOURCE_DEMO,
-            modelClass = "demo",
-            modelConfidence = 0.0,
+            modelClass = "Scab",
+            modelConfidence = 0.92,
             cropName = "Gulupa",
-            diseaseName = "Roña",
+            diseaseName = "Sarna (Roña)",
             damages = listOf(
-                Damage("scab", 12.5, 4.8),
-                Damage("mechanical", 5.5, 2.1),
-                Damage("thrips", 2.1, 0.8),
-                Damage("healthy", 79.9, 31.2),
+                Damage(DamageCatalog.SCAB, 12.5, 4.8),
+                Damage(DamageCatalog.ANTHRACNOSE, 3.2, 1.2),
+                Damage(DamageCatalog.OIL_SPOT, 1.8, 0.7),
+                Damage(DamageCatalog.HEALTHY, 82.5, 31.7),
             ),
             images = AnalysisImages(original = original),
         )
