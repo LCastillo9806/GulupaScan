@@ -31,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.BookmarkAdded
 import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.Science
@@ -283,7 +284,7 @@ fun DamageDetailScreen(a: Analysis, key: String, onBack: () -> Unit) {
 }
 
 // ---------------------------------------------------------------------------
-// Paso 5: Resultado final, reporte PDF y recomendaciones
+// Paso 5: Resultado final, reporte PDF, descarga de imágenes y recomendaciones
 // ---------------------------------------------------------------------------
 @Composable
 fun ResultScreen(
@@ -293,6 +294,7 @@ fun ResultScreen(
     onSave: () -> Unit,
     onTech: () -> Unit,
     onExportPdf: suspend () -> File,
+    onSaveImage: (filePath: String?, name: String) -> Boolean,
     onNewScan: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -345,7 +347,7 @@ fun ResultScreen(
                 }
             }
 
-            // Botón Guardar
+            // Botón Guardar en el Historial
             PrimaryButton(
                 stringResource(if (a.saved) R.string.res_saved else R.string.res_save),
                 onSave, enabled = !a.saved,
@@ -373,7 +375,32 @@ fun ResultScreen(
                 icon = Icons.Outlined.PictureAsPdf,
             )
 
-            // Compartir Resumen
+            // Descargar imágenes (original y procesada) a la galería
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SecondaryButton(
+                    stringResource(R.string.res_download_original),
+                    onClick = {
+                        val ok = onSaveImage(a.images.original, "Gulupa_${a.id}_original")
+                        val msg = if (ok) context.getString(R.string.res_image_saved) else "No se pudo guardar la imagen"
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Outlined.Download,
+                )
+                SecondaryButton(
+                    stringResource(R.string.res_download_processed),
+                    onClick = {
+                        val path = a.images.result ?: a.images.crop ?: a.images.original
+                        val ok = onSaveImage(path, "Gulupa_${a.id}_procesada")
+                        val msg = if (ok) context.getString(R.string.res_image_saved) else "No se pudo guardar la imagen"
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Outlined.Download,
+                )
+            }
+
+            // Compartir por Redes / WhatsApp con foto adjunta
             SecondaryButton(stringResource(R.string.res_share), {
                 val img = (a.images.result ?: a.images.crop ?: a.images.original)?.let { File(it) }
                 shareContent(context, shareText, img)
@@ -392,6 +419,7 @@ private fun buildShareText(a: Analysis): String {
     val sb = StringBuilder()
     sb.append(stringResource(R.string.share_header)).append('\n')
     sb.append(stringResource(R.string.res_general)).append(": ").append(stringResource(a.classification.title)).append('\n')
+    sb.append("Severidad total: ").append(pct(a.totalDamagePct)).append('\n')
     (a.harmfulDamages + a.damages.filter { it.key == DamageCatalog.HEALTHY }).forEach {
         sb.append("• ").append(damageName(it.key)).append(": ").append(pct(it.pct)).append('\n')
     }
@@ -401,7 +429,7 @@ private fun buildShareText(a: Analysis): String {
 }
 
 // ---------------------------------------------------------------------------
-// Detalles técnicos
+// Detalles técnicos con métricas exhaustivas
 // ---------------------------------------------------------------------------
 @Composable
 fun TechDetailsScreen(a: Analysis, onBack: () -> Unit) {
@@ -439,16 +467,25 @@ fun TechDetailsScreen(a: Analysis, onBack: () -> Unit) {
                     Text(stringResource(R.string.tech_metrics), style = MaterialTheme.typography.titleSmall)
                     Metric(stringResource(R.string.tech_source), when {
                         a.isDemo -> stringResource(R.string.chip_demo)
-                        a.source.contains("onnx") -> "YOLO26n-seg On-Device (ONNX)"
+                        a.source.contains("onnx") -> "YOLO26n-seg On-Device (ONNX CPU)"
                         else -> "Servidor remoto"
                     })
                     a.modelClass?.let { Metric(stringResource(R.string.tech_class), it) }
-                    if (!a.isDemo) {
-                        Metric(stringResource(R.string.tech_conf), "${(a.modelConfidence * 100).toInt()} %")
-                        if (a.leafConfidence > 0) Metric(stringResource(R.string.tech_leaf_conf), "${(a.leafConfidence * 100).toInt()} %")
-                        Metric(stringResource(R.string.tech_time_cls), "${a.clsTimeMs.toInt()} ms")
-                        Metric(stringResource(R.string.tech_time_seg), "${a.segTimeMs.toInt()} ms")
+                    Metric(stringResource(R.string.tech_conf), "${(a.modelConfidence * 100).toInt()} %")
+                    if (a.leafConfidence > 0) Metric(stringResource(R.string.tech_leaf_conf), "${(a.leafConfidence * 100).toInt()} %")
+
+                    // Tiempos de ejecución y FPS
+                    Metric(stringResource(R.string.tech_time_cls), "${a.clsTimeMs.toInt()} ms")
+                    Metric(stringResource(R.string.tech_time_seg), "${a.segTimeMs.toInt()} ms")
+                    val totalMs = (a.clsTimeMs + a.segTimeMs).toInt()
+                    Metric(stringResource(R.string.tech_time_total), "$totalMs ms")
+                    if (totalMs > 0) {
+                        Metric(stringResource(R.string.tech_fps), String.format(Locale.US, "%.1f FPS", 1000.0 / totalMs))
                     }
+
+                    // Métricas de entrada y peso
+                    Metric(stringResource(R.string.tech_input_size), "Modelo A: 480x480 | Modelo B: 640x640")
+                    Metric(stringResource(R.string.tech_model_size), "gulupa_fruto: 3.1 MB | gulupa_lesiones: 3.2 MB")
                     Metric(stringResource(R.string.tech_total), pct(a.totalDamagePct))
                 }
             }

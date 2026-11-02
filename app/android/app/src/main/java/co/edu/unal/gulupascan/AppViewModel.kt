@@ -181,6 +181,12 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     suspend fun exportPdf(analysis: Analysis): File = PdfReportGenerator.generateReport(getApplication(), analysis)
 
+    fun saveImageToGallery(filePath: String?, displayName: String): Boolean {
+        if (filePath == null) return false
+        val file = File(filePath)
+        return ImageUtils.saveImageToGallery(getApplication(), file, displayName)
+    }
+
     private suspend fun refreshHistory() {
         _history.value = repo.saved()
     }

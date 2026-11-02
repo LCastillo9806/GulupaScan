@@ -184,12 +184,13 @@ fun GulupaScanApp(vm: AppViewModel) {
                 composable(Routes.RESULT) {
                     current?.let { a ->
                         ResultScreen(
-                            a,
+                            a = a,
                             onBack = { nav.popBackStack() },
                             onDamage = { nav.navigate(Routes.damage(it)) },
                             onSave = { vm.saveCurrent() },
                             onTech = { nav.navigate(Routes.TECH) },
                             onExportPdf = { vm.exportPdf(a) },
+                            onSaveImage = { path, name -> vm.saveImageToGallery(path, name) },
                             onNewScan = {
                                 vm.reset()
                                 if (!nav.popBackStack(Routes.SCAN, inclusive = false)) {
