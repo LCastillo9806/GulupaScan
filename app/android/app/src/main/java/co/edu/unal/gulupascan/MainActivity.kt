@@ -71,27 +71,16 @@ class MainActivity : ComponentActivity() {
             if (t == null) {
                 Box(Modifier.fillMaxSize())
             } else {
-                val localizedContext = rememberLocalizedContext(LocalContext.current, language)
-                CompositionLocalProvider(LocalContext provides localizedContext) {
-                    GulupaScanTheme(t) {
-                        val bar = BrandDark.toArgb()
-                        SideEffect {
-                            window.statusBarColor = bar
-                            window.navigationBarColor = bar
-                        }
-                        GulupaScanApp(vm)
+                GulupaScanTheme(t) {
+                    val bar = BrandDark.toArgb()
+                    SideEffect {
+                        window.statusBarColor = bar
+                        window.navigationBarColor = bar
                     }
+                    GulupaScanApp(vm)
                 }
             }
         }
-    }
-
-    private fun rememberLocalizedContext(base: Context, language: AppLanguage): Context {
-        val locale = Locale(language.code)
-        Locale.setDefault(locale)
-        val config = Configuration(base.resources.configuration)
-        config.setLocale(locale)
-        return base.createConfigurationContext(config)
     }
 }
 
