@@ -177,6 +177,7 @@ fun DamageListScreen(
                 PathImage(a.images.result ?: a.images.crop ?: a.images.original, Modifier.fillMaxSize())
             }
             ModelChip(a)
+            if (a.lowDetail) InfoNote(stringResource(R.string.res_low_detail, a.cropSidePx))
 
             val rows = a.harmfulDamages + a.damages.filter { it.key == DamageCatalog.HEALTHY }
             if (rows.isEmpty()) {
@@ -310,6 +311,7 @@ fun ResultScreen(
                 PathImage(a.images.result ?: a.images.crop ?: a.images.original, Modifier.fillMaxSize())
             }
             ModelChip(a)
+            if (a.lowDetail) InfoNote(stringResource(R.string.res_low_detail, a.cropSidePx))
 
             // Clasificación general de calidad
             Surface(shape = RoundedCornerShape(14.dp), color = if (cls == Classification.HEALTHY) BrandSoft else WarnBg) {
@@ -381,7 +383,7 @@ fun ResultScreen(
                     stringResource(R.string.res_download_original),
                     onClick = {
                         val ok = onSaveImage(a.images.original, "Gulupa_${a.id}_original")
-                        val msg = if (ok) context.getString(R.string.res_image_saved) else "No se pudo guardar la imagen"
+                        val msg = if (ok) context.getString(R.string.res_image_saved) else context.getString(R.string.res_image_error)
                         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.weight(1f),
@@ -392,7 +394,7 @@ fun ResultScreen(
                     onClick = {
                         val path = a.images.result ?: a.images.crop ?: a.images.original
                         val ok = onSaveImage(path, "Gulupa_${a.id}_procesada")
-                        val msg = if (ok) context.getString(R.string.res_image_saved) else "No se pudo guardar la imagen"
+                        val msg = if (ok) context.getString(R.string.res_image_saved) else context.getString(R.string.res_image_error)
                         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.weight(1f),
@@ -419,7 +421,7 @@ private fun buildShareText(a: Analysis): String {
     val sb = StringBuilder()
     sb.append(stringResource(R.string.share_header)).append('\n')
     sb.append(stringResource(R.string.res_general)).append(": ").append(stringResource(a.classification.title)).append('\n')
-    sb.append("Severidad total: ").append(pct(a.totalDamagePct)).append('\n')
+    sb.append(stringResource(R.string.res_total_severity)).append(": ").append(pct(a.totalDamagePct)).append('\n')
     (a.harmfulDamages + a.damages.filter { it.key == DamageCatalog.HEALTHY }).forEach {
         sb.append("• ").append(damageName(it.key)).append(": ").append(pct(it.pct)).append('\n')
     }
@@ -468,7 +470,7 @@ fun TechDetailsScreen(a: Analysis, onBack: () -> Unit) {
                     Metric(stringResource(R.string.tech_source), when {
                         a.isDemo -> stringResource(R.string.chip_demo)
                         a.source.contains("onnx") -> "YOLO26n-seg On-Device (ONNX CPU)"
-                        else -> "Servidor remoto"
+                        else -> stringResource(R.string.tech_remote)
                     })
                     a.modelClass?.let { Metric(stringResource(R.string.tech_class), it) }
                     Metric(stringResource(R.string.tech_conf), "${(a.modelConfidence * 100).toInt()} %")
@@ -484,8 +486,10 @@ fun TechDetailsScreen(a: Analysis, onBack: () -> Unit) {
                     }
 
                     // Métricas de entrada y peso
-                    Metric(stringResource(R.string.tech_input_size), "Modelo A: 480x480 | Modelo B: 640x640")
-                    Metric(stringResource(R.string.tech_model_size), "gulupa_fruto: 3.1 MB | gulupa_lesiones: 3.2 MB")
+                    if (a.photoWidth > 0) Metric(stringResource(R.string.tech_photo_size), "${a.photoWidth} x ${a.photoHeight} px")
+                    if (a.cropSidePx > 0) Metric(stringResource(R.string.tech_crop_size), "${a.cropSidePx} px")
+                    Metric(stringResource(R.string.tech_input_size), stringResource(R.string.tech_input_value))
+                    Metric(stringResource(R.string.tech_model_size), "gulupa_fruto: 3.2 MB | gulupa_lesiones: 3.3 MB")
                     Metric(stringResource(R.string.tech_total), pct(a.totalDamagePct))
                 }
             }

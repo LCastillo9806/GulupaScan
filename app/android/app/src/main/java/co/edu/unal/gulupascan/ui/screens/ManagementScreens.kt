@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Download
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Landscape
 import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Settings
@@ -71,7 +73,6 @@ import co.edu.unal.gulupascan.data.UserProfile
 import co.edu.unal.gulupascan.domain.Analysis
 import co.edu.unal.gulupascan.domain.Classification
 import co.edu.unal.gulupascan.domain.Severity
-import co.edu.unal.gulupascan.ui.components.BrandHeader
 import co.edu.unal.gulupascan.ui.components.ColorDot
 import co.edu.unal.gulupascan.ui.components.GsCard
 import co.edu.unal.gulupascan.ui.components.GsTopBar
@@ -79,7 +80,6 @@ import co.edu.unal.gulupascan.ui.components.GulupaLogo
 import co.edu.unal.gulupascan.ui.components.InfoNote
 import co.edu.unal.gulupascan.ui.components.PathImage
 import co.edu.unal.gulupascan.ui.components.PrimaryButton
-import co.edu.unal.gulupascan.ui.components.StepBadge
 import co.edu.unal.gulupascan.ui.components.pct
 import co.edu.unal.gulupascan.ui.components.shareContent
 import co.edu.unal.gulupascan.ui.theme.AppBg
@@ -217,6 +217,8 @@ fun ProfileScreen(
     onAlerts: () -> Unit,
     onSettings: () -> Unit,
     onAbout: () -> Unit,
+    onTechInfo: () -> Unit,
+    onGuide: () -> Unit,
     onLogout: () -> Unit,
 ) {
     val notSet = stringResource(R.string.not_set)
@@ -244,6 +246,8 @@ fun ProfileScreen(
             MenuRow(Icons.Outlined.History, stringResource(R.string.prof_reports), onHistory)
             MenuRow(Icons.Outlined.NotificationsActive, stringResource(R.string.prof_alerts), onAlerts)
             MenuRow(Icons.Outlined.Settings, stringResource(R.string.prof_settings), onSettings)
+            MenuRow(Icons.AutoMirrored.Outlined.MenuBook, stringResource(R.string.prof_guide), onGuide)
+            MenuRow(Icons.Outlined.Memory, stringResource(R.string.prof_tech_info), onTechInfo)
             MenuRow(Icons.Outlined.Groups, stringResource(R.string.prof_about), onAbout)
             MenuRow(Icons.AutoMirrored.Outlined.Logout, stringResource(R.string.prof_logout), onLogout, chevron = false)
             Spacer(Modifier.height(16.dp))
@@ -436,37 +440,3 @@ private fun Field(label: String, value: String, onValue: (String) -> Unit) {
     )
 }
 
-// ---------------------------------------------------------------------------
-// Acerca de nosotros
-// ---------------------------------------------------------------------------
-@Composable
-fun AboutScreen(onBack: () -> Unit) {
-    Scaffold(topBar = { GsTopBar(stringResource(R.string.about_title), onBack) }) { pad ->
-        Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            BrandHeader(stringResource(R.string.about_commitment))
-            Section(stringResource(R.string.about_mission_t), stringResource(R.string.about_mission))
-            Section(stringResource(R.string.about_team_t), stringResource(R.string.about_course))
-            Text(stringResource(R.string.about_how_t), style = MaterialTheme.typography.titleSmall, color = Brand)
-            val steps = listOf(R.string.how1, R.string.how2, R.string.how3, R.string.how4, R.string.how5)
-            steps.forEachIndexed { i, res ->
-                Row(verticalAlignment = Alignment.Top) {
-                    StepBadge(i + 1)
-                    Spacer(Modifier.width(10.dp))
-                    Text(stringResource(res), style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-            Section(stringResource(R.string.about_scope_t), stringResource(R.string.about_scope))
-            Text(stringResource(R.string.about_base), style = MaterialTheme.typography.bodySmall, color = TextSoft)
-        }
-    }
-}
-
-@Composable
-private fun Section(title: String, body: String) {
-    Column {
-        Text(title, style = MaterialTheme.typography.titleSmall, color = Brand)
-        Spacer(Modifier.height(4.dp))
-        Text(body, style = MaterialTheme.typography.bodyMedium)
-    }
-}

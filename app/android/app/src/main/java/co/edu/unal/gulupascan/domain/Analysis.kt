@@ -20,8 +20,15 @@ data class Analysis(
     val clsTimeMs: Double = 0.0,
     val segTimeMs: Double = 0.0,
     val saved: Boolean = false,
+    /** Tamaño de la foto analizada y lado mayor del recorte del fruto, en píxeles (0 si no se conoce). */
+    val photoWidth: Int = 0,
+    val photoHeight: Int = 0,
+    val cropSidePx: Int = 0,
 ) {
     val isDemo: Boolean get() = source == SOURCE_DEMO
+
+    /** El fruto ocupó menos píxeles que la entrada del Modelo B (640): se amplió sin detalle real. */
+    val lowDetail: Boolean get() = cropSidePx in 1 until 640
 
     /** Daños reales (sin el tejido sano), ordenados de mayor a menor. */
     val harmfulDamages: List<Damage>

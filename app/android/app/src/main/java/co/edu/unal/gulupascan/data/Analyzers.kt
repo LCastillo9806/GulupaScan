@@ -27,7 +27,10 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /** Error con mensaje listo para mostrar al usuario. */
-class AnalysisException(message: String) : Exception(message)
+open class AnalysisException(message: String) : Exception(message)
+
+/** La foto no contiene un fruto analizable: hay que repetirla (el modo demostración no aplica). */
+class NoFruitException : AnalysisException("no fruit")
 
 interface Analyzer {
     /** Analiza [jpeg] y guarda las imágenes resultantes dentro de [workDir]. */

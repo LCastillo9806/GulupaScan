@@ -1,5 +1,7 @@
 package co.edu.unal.gulupascan.ui.theme
 
+import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
@@ -12,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import java.util.Locale
 
 /** Temas disponibles. El id se guarda en las preferencias. */
 enum class AppTheme(val id: String) {
@@ -32,6 +35,10 @@ enum class AppLanguage(val code: String) {
         fun from(code: String?) = entries.firstOrNull { it.code == code } ?: SPANISH
     }
 }
+
+/** Contexto con los recursos en el idioma [language]. */
+fun Context.withLanguage(language: AppLanguage): Context =
+    createConfigurationContext(Configuration(resources.configuration).apply { setLocale(Locale(language.code)) })
 
 /** Colores de marca que cambian con el tema. */
 @Immutable

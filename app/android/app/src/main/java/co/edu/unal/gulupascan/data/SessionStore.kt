@@ -76,7 +76,6 @@ class SessionStore(private val context: Context) {
             it[K.email] = email.trim().lowercase()
             it[K.pass] = hash(email.trim().lowercase(), password)
             it[K.loggedIn] = true
-            if (it[K.role] == null) it[K.role] = "Agricultor de gulupa"
         }
     }
 

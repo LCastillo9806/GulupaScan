@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
+import co.edu.unal.gulupascan.R
 import co.edu.unal.gulupascan.domain.Analysis
 import co.edu.unal.gulupascan.domain.DamageCatalog
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,7 @@ import java.util.Locale
 object PdfReportGenerator {
 
     suspend fun generateReport(context: Context, analysis: Analysis): File = withContext(Dispatchers.IO) {
+        fun s(id: Int) = context.getString(id)
         val doc = PdfDocument()
         // Página A4 estándar: 595 x 842 puntos
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
@@ -51,12 +53,12 @@ object PdfReportGenerator {
         paint.color = Color.WHITE
         paint.textSize = 20f
         paint.isFakeBoldText = true
-        canvas.drawText("GULUPASCAN · INFORME TÉCNICO FITOSANITARIO", 30f, 42f, paint)
+        canvas.drawText(s(R.string.pdf_title), 30f, 42f, paint)
 
         paint.textSize = 9.5f
         paint.isFakeBoldText = false
         val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
-        canvas.drawText("Fecha: ${dateFormat.format(Date(analysis.createdAt))}   |   Muestra ID: #${analysis.id}   |   Cultivo: Gulupa (Passiflora edulis)", 30f, 60f, paint)
+        canvas.drawText(context.getString(R.string.pdf_subtitle, dateFormat.format(Date(analysis.createdAt)), analysis.id), 30f, 60f, paint)
 
         // ---------------------------------------------------------------------
         // SECCIÓN 1: IMÁGENES COMPARATIVAS (Original vs. Fruto Segmentado)
@@ -64,22 +66,24 @@ object PdfReportGenerator {
         paint.color = Color.rgb(42, 26, 34)
         paint.textSize = 12f
         paint.isFakeBoldText = true
-        canvas.drawText("EVIDENCIA FOTOGRÁFICA Y SEGMENTACIÓN ONNX", 30f, 96f, paint)
+        canvas.drawText(s(R.string.pdf_evidence), 30f, 96f, paint)
 
         // Tarjeta para Foto Original
         drawPhotoCard(
             canvas, paint,
-            title = "1. FOTOGRAFÍA ORIGINAL",
+            title = s(R.string.pdf_original),
             filePath = analysis.images.original,
             rect = RectF(30f, 106f, 290f, 256f),
+            unavailable = s(R.string.pdf_no_image),
         )
 
         // Tarjeta para Foto Procesada
         drawPhotoCard(
             canvas, paint,
-            title = "2. SEGMENTACIÓN Y MÁSCARAS",
+            title = s(R.string.pdf_masks),
             filePath = analysis.images.result ?: analysis.images.crop ?: analysis.images.original,
             rect = RectF(305f, 106f, 565f, 256f),
+            unavailable = s(R.string.pdf_no_image),
         )
 
         // ---------------------------------------------------------------------
@@ -97,18 +101,18 @@ object PdfReportGenerator {
         paint.color = Color.rgb(42, 26, 34)
         paint.textSize = 11.5f
         paint.isFakeBoldText = true
-        canvas.drawText("DIAGNÓSTICO FITOSANITARIO Y DESTINO COMERCIAL", 45f, 288f, paint)
+        canvas.drawText(s(R.string.pdf_diagnosis), 45f, 288f, paint)
 
         paint.textSize = 10f
         paint.isFakeBoldText = false
         paint.color = Color.rgb(100, 90, 100)
-        canvas.drawText("Clasificación según severidad:", 45f, 308f, paint)
+        canvas.drawText(s(R.string.pdf_class_label), 45f, 308f, paint)
 
         val clsTitle = when (analysis.classification.name) {
-            "HEALTHY" -> "Fruto Sano (Calidad Extra · Exportación Apta)"
-            "LIGHT" -> "Daño Leve (Categoría I · Mercado Fresco / Exportación con Selección)"
-            "MODERATE" -> "Daño Moderado (Categoría II · Destino Agroindustrial / Pulpa)"
-            else -> "Daño Severo (Descarte Fitosanitario · No Apto Consumo Fresco)"
+            "HEALTHY" -> s(R.string.pdf_cls_healthy)
+            "LIGHT" -> s(R.string.pdf_cls_light)
+            "MODERATE" -> s(R.string.pdf_cls_moderate)
+            else -> s(R.string.pdf_cls_severe)
         }
         val clsColor = when (analysis.classification.name) {
             "HEALTHY" -> Color.rgb(46, 158, 68)
@@ -125,7 +129,7 @@ object PdfReportGenerator {
         paint.color = Color.rgb(100, 90, 100)
         paint.textSize = 10f
         paint.isFakeBoldText = false
-        canvas.drawText("Severidad Epidérmica Total:", 380f, 308f, paint)
+        canvas.drawText(s(R.string.pdf_total), 380f, 308f, paint)
 
         paint.color = Color.rgb(144, 52, 189)
         paint.textSize = 18f
@@ -138,7 +142,7 @@ object PdfReportGenerator {
         paint.color = Color.rgb(42, 26, 34)
         paint.textSize = 12f
         paint.isFakeBoldText = true
-        canvas.drawText("MÉTRICAS TÉCNICAS DE INFERENCIA (ON-DEVICE RUNTIME)", 30f, 372f, paint)
+        canvas.drawText(s(R.string.pdf_metrics), 30f, 372f, paint)
 
         val metricsCard = RectF(30f, 380f, 565f, 475f)
         paint.color = Color.WHITE
@@ -153,22 +157,22 @@ object PdfReportGenerator {
         val col1 = 45f
         val col2 = 300f
 
-        drawMetricLine(canvas, paint, col1, mY, "Motor de Inferencia:", if (analysis.isDemo) "Simulación (Demo)" else "ONNX Runtime int8 (CPU)")
-        drawMetricLine(canvas, paint, col2, mY, "Tiempo Modelo A (Fruto):", "${analysis.clsTimeMs.toInt()} ms (480x480)")
+        drawMetricLine(canvas, paint, col1, mY, s(R.string.pdf_engine), if (analysis.isDemo) s(R.string.pdf_simulation) else "ONNX Runtime int8 (CPU)")
+        drawMetricLine(canvas, paint, col2, mY, s(R.string.pdf_time_a), "${analysis.clsTimeMs.toInt()} ms (480x480)")
 
         mY += 18f
-        drawMetricLine(canvas, paint, col1, mY, "Arquitectura:", "YOLO26n-seg Dual Pipeline")
-        drawMetricLine(canvas, paint, col2, mY, "Tiempo Modelo B (Lesiones):", "${analysis.segTimeMs.toInt()} ms (640x640)")
+        drawMetricLine(canvas, paint, col1, mY, s(R.string.pdf_arch), "YOLO26n-seg Dual Pipeline")
+        drawMetricLine(canvas, paint, col2, mY, s(R.string.pdf_time_b), "${analysis.segTimeMs.toInt()} ms (640x640)")
 
         mY += 18f
         val totalMs = (analysis.clsTimeMs + analysis.segTimeMs).toInt()
         val fps = if (totalMs > 0) String.format(Locale.US, "%.1f FPS", 1000.0 / totalMs) else "—"
-        drawMetricLine(canvas, paint, col1, mY, "Tiempo Total de Ejecución:", "$totalMs ms ($fps)")
-        drawMetricLine(canvas, paint, col2, mY, "Confianza Localización Fruto:", "${(analysis.leafConfidence * 100).toInt()} %")
+        drawMetricLine(canvas, paint, col1, mY, s(R.string.pdf_time_total), "$totalMs ms ($fps)")
+        drawMetricLine(canvas, paint, col2, mY, s(R.string.pdf_conf_fruit), "${(analysis.leafConfidence * 100).toInt()} %")
 
         mY += 18f
-        drawMetricLine(canvas, paint, col1, mY, "Confianza Detección Daño:", "${(analysis.modelConfidence * 100).toInt()} %")
-        drawMetricLine(canvas, paint, col2, mY, "Tamaño Modelos en App:", "Fruto: 3.1 MB | Lesiones: 3.2 MB")
+        drawMetricLine(canvas, paint, col1, mY, s(R.string.pdf_conf_damage), "${(analysis.modelConfidence * 100).toInt()} %")
+        drawMetricLine(canvas, paint, col2, mY, s(R.string.pdf_model_size), s(R.string.pdf_model_size_value))
 
         // ---------------------------------------------------------------------
         // SECCIÓN 4: DESGLOSE EPIDÉRMICO POR PATÓGENO
@@ -176,7 +180,7 @@ object PdfReportGenerator {
         paint.color = Color.rgb(42, 26, 34)
         paint.textSize = 12f
         paint.isFakeBoldText = true
-        canvas.drawText("DESGLOSE CUANTIFICADO POR TIPO DE LESIÓN", 30f, 498f, paint)
+        canvas.drawText(s(R.string.pdf_breakdown), 30f, 498f, paint)
 
         var tableY = 512f
         paint.color = Color.rgb(235, 230, 242)
@@ -185,10 +189,10 @@ object PdfReportGenerator {
         paint.color = Color.rgb(60, 40, 60)
         paint.textSize = 10f
         paint.isFakeBoldText = true
-        canvas.drawText("Patógeno / Daño", 40f, tableY, paint)
-        canvas.drawText("Agente Causal", 180f, tableY, paint)
-        canvas.drawText("Nivel Severidad", 360f, tableY, paint)
-        canvas.drawText("Área (%)", 485f, tableY, paint)
+        canvas.drawText(s(R.string.pdf_col_damage), 40f, tableY, paint)
+        canvas.drawText(s(R.string.pdf_col_agent), 180f, tableY, paint)
+        canvas.drawText(s(R.string.pdf_col_level), 360f, tableY, paint)
+        canvas.drawText(s(R.string.pdf_col_area), 485f, tableY, paint)
 
         tableY += 24f
         val rows = analysis.harmfulDamages + analysis.damages.filter { it.key == DamageCatalog.HEALTHY }
@@ -196,11 +200,11 @@ object PdfReportGenerator {
         rows.forEach { d ->
             val info = DamageCatalog.get(d.key)
             val dName = when (d.key) {
-                "scab" -> "Sarna (Roña)"
-                "anthracnose" -> "Antracnosis"
-                "oil_spot" -> "Mancha de aceite"
-                "fruit" -> "Fruta / Fruto detectado"
-                "healthy" -> "Tejido sano"
+                "scab" -> s(R.string.pdf_scab)
+                "anthracnose" -> s(R.string.pdf_anthracnose)
+                "oil_spot" -> s(R.string.pdf_oil_spot)
+                "fruit" -> s(R.string.pdf_fruit)
+                "healthy" -> s(R.string.pdf_healthy_tissue)
                 else -> d.key
             }
             val levelStr = if (d.key == DamageCatalog.HEALTHY) "0 / 10" else "${co.edu.unal.gulupascan.domain.Severity.level(d.pct)} / 10"
@@ -235,7 +239,7 @@ object PdfReportGenerator {
         paint.color = Color.rgb(42, 26, 34)
         paint.textSize = 12f
         paint.isFakeBoldText = true
-        canvas.drawText("RECOMENDACIONES AGRONÓMICAS Y MANEJO EN CAMPO", 30f, tableY, paint)
+        canvas.drawText(s(R.string.pdf_advice_t), 30f, tableY, paint)
 
         tableY += 10f
         val advRect = RectF(30f, tableY, 565f, tableY + 80f)
@@ -249,10 +253,10 @@ object PdfReportGenerator {
         paint.style = Paint.Style.FILL
 
         val adviceText = when (analysis.classification.name) {
-            "HEALTHY" -> "Lote en excelente estado fitosanitario. Mantener las labores de deschuponado, podas de aireación y monitoreo continuo semanal para sostener la calificación de exportación."
-            "LIGHT" -> "Se identifican focos incipientes de daño (< 5%). Realizar podas sanitarias selectivas de hojas y zarcillos afectados. Aplicar desinfectantes preventivos a base de cobre o biofungicidas."
-            "MODERATE" -> "Severidad moderada (5-20%). Se sugiere clasificar para mercado interno o pulpa procesada. Evaluar condiciones de humedad relativa y aplicar rotación de fungicidas con acción curativa."
-            else -> "Fruto con daño severo (> 20%). Descarte fitosanitario para exportación. Retirar frutos enfermos de la plantación para evitar diseminación de inóculo y consultar de inmediato a un agrónomo."
+            "HEALTHY" -> s(R.string.pdf_advice_healthy)
+            "LIGHT" -> s(R.string.pdf_advice_light)
+            "MODERATE" -> s(R.string.pdf_advice_moderate)
+            else -> s(R.string.pdf_advice_severe)
         }
 
         paint.color = Color.rgb(55, 55, 55)
@@ -279,8 +283,8 @@ object PdfReportGenerator {
         paint.color = Color.GRAY
         paint.textSize = 8.5f
         paint.isFakeBoldText = false
-        canvas.drawText("Universidad Nacional de Colombia · Facultad de Ciencias Agrarias · GuluScan Inferencia Edge", 30f, 820f, paint)
-        canvas.drawText("Página 1 de 1 · Reporte de Exportación", 420f, 820f, paint)
+        canvas.drawText(s(R.string.pdf_footer), 30f, 820f, paint)
+        canvas.drawText(s(R.string.pdf_page), 420f, 820f, paint)
 
         doc.finishPage(page)
 
@@ -291,7 +295,7 @@ object PdfReportGenerator {
         outFile
     }
 
-    private fun drawPhotoCard(canvas: android.graphics.Canvas, paint: Paint, title: String, filePath: String?, rect: RectF) {
+    private fun drawPhotoCard(canvas: android.graphics.Canvas, paint: Paint, title: String, filePath: String?, rect: RectF, unavailable: String) {
         // Fondo tarjeta foto
         paint.color = Color.WHITE
         canvas.drawRoundRect(rect, 8f, 8f, paint)
@@ -322,7 +326,7 @@ object PdfReportGenerator {
             paint.color = Color.GRAY
             paint.textSize = 9f
             paint.isFakeBoldText = false
-            canvas.drawText("Imagen no disponible", imgArea.left + 20f, imgArea.centerY(), paint)
+            canvas.drawText(unavailable, imgArea.left + 20f, imgArea.centerY(), paint)
         }
     }
 

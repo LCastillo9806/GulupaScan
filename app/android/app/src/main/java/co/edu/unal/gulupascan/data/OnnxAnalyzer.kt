@@ -197,6 +197,8 @@ class OnnxLocalAnalyzer(private val context: Context) : Analyzer, AutoCloseable 
         val mFruto = getOrInitFruto()
         val (recorte, frutoOk, confFruto) = recortarFruto(mFruto, foto)
         val tFruto = System.currentTimeMillis() - t0
+        // Sin fruto localizado el Modelo B vería el fondo completo y su resultado no tendría validez.
+        if (!frutoOk) throw NoFruitException()
 
         val t1 = System.currentTimeMillis()
         val mLesiones = getOrInitLesiones()
@@ -220,6 +222,8 @@ class OnnxLocalAnalyzer(private val context: Context) : Analyzer, AutoCloseable 
         for (i in 0 until n) if (unionLesiones[i]) mascaraFruto[i] = true
 
         val areaFruto = mascaraFruto.count { it }.toFloat()
+        // Sin área de fruto la severidad sería 0 % y la app reportaría "sano" sin haber visto el fruto.
+        if (areaFruto == 0f) throw NoFruitException()
         fun pct(m: BooleanArray) = if (areaFruto > 0) 100.0 * m.indices.count { m[it] && mascaraFruto[it] } / areaFruto else 0.0
 
         val severidades = porLesion.map { (id, m) -> ConfigGulupa.LESIONES.getValue(id) to pct(m) }.toMap()
@@ -256,7 +260,7 @@ class OnnxLocalAnalyzer(private val context: Context) : Analyzer, AutoCloseable 
             createdAt = System.currentTimeMillis(),
             source = "onnx_offline",
             modelClass = if (isHealthy) "Healthy" else topLesion?.key?.replaceFirstChar { it.uppercase() },
-            modelConfidence = if (maxConf > 0f) maxConf.toDouble() else 0.88,
+            modelConfidence = maxConf.toDouble(),
             leafConfidence = confFruto.toDouble(),
             cropName = "Gulupa",
             diseaseName = diseaseName,
@@ -270,6 +274,9 @@ class OnnxLocalAnalyzer(private val context: Context) : Analyzer, AutoCloseable 
             ),
             clsTimeMs = tFruto.toDouble(),
             segTimeMs = tLesiones.toDouble(),
+            photoWidth = foto.width,
+            photoHeight = foto.height,
+            cropSidePx = max(recorte.width, recorte.height),
         )
     }
 

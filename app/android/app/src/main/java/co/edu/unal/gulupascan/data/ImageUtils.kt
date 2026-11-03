@@ -21,9 +21,10 @@ object ImageUtils {
 
     /**
      * Lee una imagen (cámara o galería), corrige la rotación EXIF, la reduce a [maxSide]
-     * y la devuelve como JPEG.
+     * y la devuelve como JPEG. [maxSide] coincide con max_lado del entrenamiento (config.yaml):
+     * con menos píxeles el recorte del fruto que recibe el Modelo B pierde detalle de las lesiones.
      */
-    fun loadAsJpeg(context: Context, uri: Uri, maxSide: Int = 1600, quality: Int = 90): ByteArray {
+    fun loadAsJpeg(context: Context, uri: Uri, maxSide: Int = ConfigGulupa.LADO_MAXIMO_FOTO, quality: Int = 95): ByteArray {
         val resolver = context.contentResolver
 
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }

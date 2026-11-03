@@ -9,6 +9,7 @@ import co.edu.unal.gulupascan.data.AnalysisRepository
 import co.edu.unal.gulupascan.data.AppSettings
 import co.edu.unal.gulupascan.data.DemoAnalyzer
 import co.edu.unal.gulupascan.data.ImageUtils
+import co.edu.unal.gulupascan.data.NoFruitException
 import co.edu.unal.gulupascan.data.OnnxLocalAnalyzer
 import co.edu.unal.gulupascan.data.PdfReportGenerator
 import co.edu.unal.gulupascan.data.RemoteAnalyzer
@@ -17,6 +18,7 @@ import co.edu.unal.gulupascan.data.UserProfile
 import co.edu.unal.gulupascan.domain.Analysis
 import co.edu.unal.gulupascan.ui.theme.AppLanguage
 import co.edu.unal.gulupascan.ui.theme.AppTheme
+import co.edu.unal.gulupascan.ui.theme.withLanguage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -132,8 +134,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun fail(original: File, e: Exception, wasDemo: Boolean) {
-        val ctx = getApplication<Application>()
+        val ctx = localizedContext()
         val msg = when (e) {
+            is NoFruitException -> ctx.getString(R.string.err_no_fruit)
             is AnalysisException -> e.message.orEmpty()
             is IOException -> ctx.getString(R.string.err_network)
             else -> ctx.getString(R.string.err_generic, e.message ?: e.javaClass.simpleName)
@@ -141,9 +144,12 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         _scan.value = ScanState.Failed(
             previewPath = original.takeIf { it.exists() }?.absolutePath,
             message = msg,
-            canTryDemo = !wasDemo && lastJpeg != null,
+            canTryDemo = !wasDemo && lastJpeg != null && e !is NoFruitException,
         )
     }
+
+    /** Contexto con el idioma elegido en la app, para textos generados fuera de la interfaz. */
+    private fun localizedContext() = getApplication<Application>().withLanguage(language.value)
 
     fun cancel() {
         job?.cancel()
@@ -179,7 +185,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     suspend fun exportCsv(): File = repo.exportCsv(_history.value)
 
-    suspend fun exportPdf(analysis: Analysis): File = PdfReportGenerator.generateReport(getApplication(), analysis)
+    suspend fun exportPdf(analysis: Analysis): File = PdfReportGenerator.generateReport(localizedContext(), analysis)
 
     fun saveImageToGallery(filePath: String?, displayName: String): Boolean {
         if (filePath == null) return false

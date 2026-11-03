@@ -1,7 +1,8 @@
 package co.edu.unal.gulupascan
 
 import android.content.Context
-import android.content.res.Configuration
+import android.content.ContextWrapper
+import android.content.res.Resources
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,6 +27,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -40,6 +42,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import co.edu.unal.gulupascan.ui.screens.AboutScreen
+import co.edu.unal.gulupascan.ui.screens.GuideScreen
+import co.edu.unal.gulupascan.ui.screens.TechInfoScreen
 import co.edu.unal.gulupascan.ui.screens.AlertsScreen
 import co.edu.unal.gulupascan.ui.screens.AuthScreen
 import co.edu.unal.gulupascan.ui.screens.CameraScreen
@@ -56,6 +60,7 @@ import co.edu.unal.gulupascan.ui.theme.AppLanguage
 import co.edu.unal.gulupascan.ui.theme.BrandDark
 import co.edu.unal.gulupascan.ui.theme.BrandSoft
 import co.edu.unal.gulupascan.ui.theme.GulupaScanTheme
+import co.edu.unal.gulupascan.ui.theme.withLanguage
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
@@ -71,17 +76,33 @@ class MainActivity : ComponentActivity() {
             if (t == null) {
                 Box(Modifier.fillMaxSize())
             } else {
-                GulupaScanTheme(t) {
-                    val bar = BrandDark.toArgb()
-                    SideEffect {
-                        window.statusBarColor = bar
-                        window.navigationBarColor = bar
+                val activity = this
+                val localized = remember(language) {
+                    Locale.setDefault(Locale(language.code))
+                    LocalizedContext(activity, language)
+                }
+                CompositionLocalProvider(LocalContext provides localized) {
+                    GulupaScanTheme(t) {
+                        val bar = BrandDark.toArgb()
+                        SideEffect {
+                            window.statusBarColor = bar
+                            window.navigationBarColor = bar
+                        }
+                        GulupaScanApp(vm)
                     }
-                    GulupaScanApp(vm)
                 }
             }
         }
     }
+}
+
+/**
+ * Cambia el idioma de los recursos al instante. Envuelve a la Activity en lugar de reemplazarla:
+ * la cámara y la galería la buscan en la cadena de contextos y sin ella la app se cierra.
+ */
+private class LocalizedContext(activity: Context, language: AppLanguage) : ContextWrapper(activity) {
+    private val localized = activity.withLanguage(language)
+    override fun getResources(): Resources = localized.resources
 }
 
 private object Routes {
@@ -98,6 +119,8 @@ private object Routes {
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
     const val ABOUT = "about"
+    const val TECH_INFO = "tech_info"
+    const val GUIDE = "guide"
     fun damage(key: String) = "damage/$key"
 }
 
@@ -148,7 +171,7 @@ fun GulupaScanApp(vm: AppViewModel) {
                     AuthScreen(vm) { nav.navigate(Routes.SCAN) { popUpTo(Routes.AUTH) { inclusive = true } } }
                 }
                 composable(Routes.SCAN) {
-                    CameraScreen { uri -> vm.analyze(uri); nav.navigate(Routes.PROCESSING) }
+                    CameraScreen(onGuide = { nav.navigate(Routes.GUIDE) }) { uri -> vm.analyze(uri); nav.navigate(Routes.PROCESSING) }
                 }
                 composable(Routes.PROCESSING) {
                     ProcessingScreen(
@@ -205,6 +228,8 @@ fun GulupaScanApp(vm: AppViewModel) {
                         onAlerts = { nav.navigate(Routes.ALERTS) },
                         onSettings = { nav.navigate(Routes.SETTINGS) },
                         onAbout = { nav.navigate(Routes.ABOUT) },
+                        onTechInfo = { nav.navigate(Routes.TECH_INFO) },
+                        onGuide = { nav.navigate(Routes.GUIDE) },
                         onLogout = {
                             vm.logout()
                             nav.navigate(Routes.AUTH) { popUpTo(nav.graph.id) { inclusive = true } }
@@ -222,6 +247,17 @@ fun GulupaScanApp(vm: AppViewModel) {
                     )
                 }
                 composable(Routes.ABOUT) { AboutScreen { nav.popBackStack() } }
+                composable(Routes.TECH_INFO) { TechInfoScreen { nav.popBackStack() } }
+                composable(Routes.GUIDE) {
+                    GuideScreen(
+                        onBack = { nav.popBackStack() },
+                        onFinish = {
+                            if (!nav.popBackStack(Routes.SCAN, inclusive = false)) {
+                                nav.navigate(Routes.SCAN) { popUpTo(nav.graph.id) { inclusive = true } }
+                            }
+                        },
+                    )
+                }
             }
         }
     }

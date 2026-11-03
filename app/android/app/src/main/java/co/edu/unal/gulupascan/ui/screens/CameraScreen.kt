@@ -3,30 +3,43 @@ package co.edu.unal.gulupascan.ui.screens
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cameraswitch
 import androidx.compose.material.icons.outlined.FlashOff
@@ -43,6 +56,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,6 +65,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -66,9 +82,14 @@ import co.edu.unal.gulupascan.ui.components.PrimaryButton
 import co.edu.unal.gulupascan.ui.components.StepBadge
 import co.edu.unal.gulupascan.ui.theme.Pulp
 import java.io.File
+import java.util.concurrent.TimeUnit
+
+private const val JPEG_QUALITY = 95
+private const val FOCUS_HOLD_SECONDS = 5L
+private const val FOCUS_TIMEOUT_MS = 2000L
 
 @Composable
-fun CameraScreen(onImage: (Uri) -> Unit) {
+fun CameraScreen(onGuide: () -> Unit, onImage: (Uri) -> Unit) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -86,8 +107,24 @@ fun CameraScreen(onImage: (Uri) -> Unit) {
     var showTips by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
 
+    var camera by remember { mutableStateOf<Camera?>(null) }
+    var tapPoint by remember { mutableStateOf<Offset?>(null) }
+    var tapCount by remember { mutableIntStateOf(0) }
+
     val previewView = remember { PreviewView(context).apply { scaleType = PreviewView.ScaleType.FILL_CENTER } }
-    val imageCapture = remember { ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).build() }
+    // Captura a la máxima resolución del sensor y con todo el procesado de imagen de la cámara.
+    val imageCapture = remember {
+        ImageCapture.Builder()
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+            .setJpegQuality(JPEG_QUALITY)
+            .setResolutionSelector(
+                ResolutionSelector.Builder()
+                    .setAspectRatioStrategy(AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY)
+                    .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                    .build(),
+            )
+            .build()
+    }
 
     LaunchedEffect(Unit) { if (!hasPermission) permissionLauncher.launch(Manifest.permission.CAMERA) }
 
@@ -98,38 +135,82 @@ fun CameraScreen(onImage: (Uri) -> Unit) {
             val future = ProcessCameraProvider.getInstance(context)
             future.addListener({
                 provider = future.get()
-                val preview = Preview.Builder().build().also { it.setSurfaceProvider(previewView.surfaceProvider) }
+                // Misma proporción 4:3 que la captura: lo que se ve en pantalla es lo que se fotografía.
+                val preview = Preview.Builder()
+                    .setResolutionSelector(
+                        ResolutionSelector.Builder()
+                            .setAspectRatioStrategy(AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY)
+                            .build(),
+                    )
+                    .build()
+                    .also { it.setSurfaceProvider(previewView.surfaceProvider) }
                 val selector = if (backCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
                 runCatching {
                     provider?.unbindAll()
-                    provider?.bindToLifecycle(lifecycleOwner, selector, preview, imageCapture)
+                    camera = provider?.bindToLifecycle(lifecycleOwner, selector, preview, imageCapture)
                 }
             }, ContextCompat.getMainExecutor(context))
         }
-        onDispose { runCatching { provider?.unbindAll() } }
+        onDispose {
+            camera = null
+            tapPoint = null
+            runCatching { provider?.unbindAll() }
+        }
     }
     LaunchedEffect(flashOn) {
         imageCapture.flashMode = if (flashOn) ImageCapture.FLASH_MODE_ON else ImageCapture.FLASH_MODE_OFF
     }
 
+    fun focusAt(x: Float, y: Float) = camera?.cameraControl?.startFocusAndMetering(
+        FocusMeteringAction.Builder(
+            previewView.meteringPointFactory.createPoint(x, y),
+            FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE,
+        ).setAutoCancelDuration(FOCUS_HOLD_SECONDS, TimeUnit.SECONDS).build(),
+    )
+
     fun takePhoto() {
         if (busy) return
         busy = true
+        // Las capturas ahora pesan varios MB: no se acumulan en la caché.
+        context.cacheDir.listFiles { f -> f.name.startsWith("capture_") }?.forEach { it.delete() }
         val file = File(context.cacheDir, "capture_${System.currentTimeMillis()}.jpg")
-        imageCapture.takePicture(
-            ImageCapture.OutputFileOptions.Builder(file).build(),
-            ContextCompat.getMainExecutor(context),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    busy = false
-                    onImage(Uri.fromFile(file))
-                }
+        val mainExecutor = ContextCompat.getMainExecutor(context)
 
-                override fun onError(exception: ImageCaptureException) {
-                    busy = false
-                }
-            },
-        )
+        var captured = false
+        fun capture() {
+            if (captured) return
+            captured = true
+            imageCapture.takePicture(
+                ImageCapture.OutputFileOptions.Builder(file).build(),
+                mainExecutor,
+                object : ImageCapture.OnImageSavedCallback {
+                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                        busy = false
+                        onImage(Uri.fromFile(file))
+                    }
+
+                    override fun onError(exception: ImageCaptureException) {
+                        busy = false
+                        Toast.makeText(context, R.string.cam_capture_error, Toast.LENGTH_LONG).show()
+                    }
+                },
+            )
+        }
+
+        // Enfoca justo antes de disparar, en el punto tocado o en el centro del encuadre.
+        val point = tapPoint ?: Offset(previewView.width / 2f, previewView.height / 2f)
+        val focus = focusAt(point.x, point.y)
+        if (focus == null) {
+            capture()
+        } else {
+            focus.addListener({
+                val focused = runCatching { focus.get().isFocusSuccessful }.getOrDefault(true)
+                if (!focused && !captured) Toast.makeText(context, R.string.cam_focus_failed, Toast.LENGTH_LONG).show()
+                capture()
+            }, mainExecutor)
+            // Algunos teléfonos nunca responden a la solicitud de enfoque: no se bloquea el disparo.
+            Handler(Looper.getMainLooper()).postDelayed({ capture() }, FOCUS_TIMEOUT_MS)
+        }
     }
 
     Column(Modifier.fillMaxSize().background(Color.Black)) {
@@ -139,10 +220,33 @@ fun CameraScreen(onImage: (Uri) -> Unit) {
             }
         })
 
-        Box(Modifier.weight(1f).fillMaxWidth().background(Color(0xFFDADFE3)), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier.weight(1f).fillMaxWidth().background(if (hasPermission) Color.Black else Color(0xFFDADFE3)),
+            contentAlignment = Alignment.Center,
+        ) {
             if (hasPermission) {
-                AndroidView({ previewView }, Modifier.fillMaxSize())
-                FrameCorners(Modifier.fillMaxSize().padding(28.dp))
+                Box(Modifier.aspectRatio(3f / 4f)) {
+                    AndroidView({ previewView }, Modifier.fillMaxSize())
+                    FrameCorners(Modifier.fillMaxSize().padding(28.dp))
+                    Box(
+                        Modifier.fillMaxSize().pointerInput(Unit) {
+                            detectTapGestures { offset ->
+                                tapPoint = offset
+                                tapCount++
+                                focusAt(offset.x, offset.y)
+                            }
+                        },
+                    )
+                    tapPoint?.let { FocusRing(it, tapCount) }
+                    Text(
+                        stringResource(R.string.cam_tap_focus),
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 10.dp)
+                            .background(Color.Black.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                    )
+                }
             } else {
                 Column(Modifier.padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Outlined.PhotoCamera, null, Modifier.size(56.dp), tint = Color.DarkGray)
@@ -189,6 +293,9 @@ fun CameraScreen(onImage: (Uri) -> Unit) {
         AlertDialog(
             onDismissRequest = { showTips = false },
             confirmButton = { TextButton(onClick = { showTips = false }) { Text(stringResource(R.string.ok)) } },
+            dismissButton = {
+                TextButton(onClick = { showTips = false; onGuide() }) { Text(stringResource(R.string.cam_open_guide)) }
+            },
             title = { Text(stringResource(R.string.cam_tips_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -201,6 +308,22 @@ fun CameraScreen(onImage: (Uri) -> Unit) {
                     }
                 }
             },
+        )
+    }
+}
+
+/** Aro que se contrae y se desvanece en el punto donde se tocó para enfocar. */
+@Composable
+private fun FocusRing(point: Offset, key: Int) {
+    val progress = remember(key) { Animatable(0f) }
+    LaunchedEffect(key) { progress.animateTo(1f, tween(900)) }
+    Canvas(Modifier.fillMaxSize()) {
+        val p = progress.value
+        drawCircle(
+            color = Pulp.copy(alpha = 1f - p * p),
+            radius = (44.dp.toPx() - 14.dp.toPx() * minOf(p * 3f, 1f)),
+            center = point,
+            style = Stroke(2.dp.toPx()),
         )
     }
 }
