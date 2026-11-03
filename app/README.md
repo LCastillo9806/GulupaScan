@@ -29,6 +29,25 @@ app/
 - **Modo demostración**: reproduce los valores del mockup (roña 12.5 %, daño mecánico 5.5 %,
   trips 2.1 %) sin servidor. Útil para exponer en clase.
 
+## Migración a iPhone
+
+La guía para construir la versión de iOS está en [`docs/migracion-ios.md`](../docs/migracion-ios.md).
+Para validar sus resultados contra los modelos, usa `scripts/referencia_onnx.py`.
+
+## Cómo poner la foto de Diego (o cambiar una foto del equipo)
+
+1. Recorta la foto en formato cuadrado, con la cara centrada, de unos 320 × 320 px.
+2. Guárdala como `team_diego.jpg` en `app/android/app/src/main/res/drawable-nodpi/`. El nombre
+   solo admite minúsculas, números y guion bajo.
+3. En `app/android/app/src/main/java/co/edu/unal/gulupascan/ui/screens/InfoScreens.kt`, dentro de
+   la lista `team`, cambia `null` por `R.drawable.team_diego` en la línea de Diego:
+
+   ```kotlin
+   TeamMember("Diego Humberto Lavado González", R.string.team_role_systems, R.string.team_fac_engineering, R.drawable.team_diego),
+   ```
+4. Compila de nuevo el APK. Para cambiar otra foto, basta con reemplazar el archivo `team_*.jpg`
+   correspondiente conservando su nombre.
+
 ## Pantallas (según el mockup del Reto 2)
 
 | Mockup | Pantalla en la app | Archivo |

@@ -1,5 +1,15 @@
 # Changelog
 
+## [camara-info-ios] - 2026-11-03
+- Cámara: máxima calidad, mayor resolución 4:3, enfoque antes de disparar, tocar para enfocar y vista
+  previa igual a la foto. Las imágenes se analizan a 2048 px, como en el entrenamiento.
+- Análisis: si no hay fruto se pide otra foto en lugar de informar "sano"; se elimina la confianza fija
+  de 88 %; aviso cuando el fruto ocupa pocos píxeles.
+- Nuevas secciones en Perfil: Instrucciones de uso e Información técnica. Acerca de nosotros incluye al equipo.
+- Idioma: el selector cambia al instante toda la app, incluido el PDF, sin cerrar la cámara.
+- `docs/migracion-ios.md`: guía para migrar a iPhone. `scripts/referencia_onnx.py`: resultado de referencia
+  para validar cualquier implementación.
+
 ## [logos-transicion] - 2026-10-30
 - Nueva identidad visual: logo del fruto y letrero "GulupaScan" del equipo (imágenes con fondo
   transparente), paleta ciruela/verde/amarillo/morado e ícono de la app sobre morado.
