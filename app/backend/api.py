@@ -1,92 +1,88 @@
 # -*- coding: utf-8 -*-
+"""API REST JSON para la aplicación móvil GulupaScan (Android / iOS).
+
+Expone dos endpoints sobre el servidor Flask:
+    - `GET  /api/health`  -> `{"ok": true, "api_version": 1, "engine": ...}`
+    - `POST /api/analyze` -> recibe `multipart/form-data` con el campo `"image"` y
+                             devuelve el diagnóstico fitosanitario junto con las
+                             capas segmentadas codificadas en Base64.
 """
-api.py — API JSON para la app móvil GulupaScan (Kotlin / Android).
 
-Reutiliza SIN MODIFICAR el pipeline de PowderyVision7 (pipeline.py + segment_mildew.py)
-y le agrega dos rutas nuevas al mismo servidor Flask:
-
-    GET  /api/health    -> {"ok": true, "api_version": 1}
-    POST /api/analyze   -> recibe multipart "image" y devuelve JSON con
-                           resultados + imágenes en base64.
-
-La interfaz web original ("/") sigue funcionando igual.
-
-Uso: copia este archivo junto a app.py (en el Space de Hugging Face o en Cloud Run)
-y cambia el comando de arranque del Dockerfile de `app:app` a `api:app`:
-
-    CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 120 --keep-alive 5 api:app
-"""
+from __future__ import annotations
 
 import base64
 import os
 import shutil
 import threading
 import uuid
+from typing import Any
 
 import cv2
 import numpy as np
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request
 
 import gulupa_pipeline
 
-# Pipeline de PowderyVision7 (opcional cuando ya exista el modelo de gulupa).
 try:
     import segment_mildew
-    from app import app  # app Flask original (ruta "/")
+    from app import app
     from pipeline import run_full_pipeline
+
     HAS_PV7 = True
-except Exception as _e:  # noqa: BLE001
+except Exception as _exc:  # noqa: BLE001
     if not gulupa_pipeline.available():
         raise
-    print(f"[api] PowderyVision7 no disponible ({_e}); se usa solo el modelo de gulupa.")
+    print(f"[api] PowderyVision7 no disponible ({_exc}); usando motor de gulupa.")
     app = Flask(__name__)
     HAS_PV7 = False
 
 API_VERSION = 1
-MAX_SIDE_UPLOAD = 1600   # reduce fotos enormes del celular antes del pipeline
-MAX_SIDE_RETURN = 900    # tamaño máximo de las imágenes devueltas a la app
+MAX_SIDE_UPLOAD = 1600
+MAX_SIDE_RETURN = 900
 JPEG_QUALITY = 85
 
-# ---------------------------------------------------------------------------
-# Captura de las capas intermedias de la segmentación.
-# segment_mildew.segmentar_lesiones() llama internamente a _panel_to_array(...)
-# con la hoja sin fondo, la máscara final y el resultado con contornos.
-# Envolvemos esa función para guardar esas capas y devolverlas a la app
-# (pantalla "Detalles" del mockup), sin tocar el código original.
-# ---------------------------------------------------------------------------
 _capture = threading.local()
 
 if HAS_PV7:
     _original_panel_fn = segment_mildew._panel_to_array
 
-    def _panel_hook(rgb, Lr_u, ent_u, deltaE, seg, vis, porcentaje):
+    def _panel_hook(
+        rgb: np.ndarray,
+        lr_u: np.ndarray,
+        ent_u: np.ndarray,
+        delta_e: np.ndarray,
+        seg: np.ndarray,
+        vis: np.ndarray,
+        porcentaje: float,
+    ) -> Any:
+        """Captura en memoria las capas intermedias generadas durante la segmentación."""
         _capture.layers = {
             "leaf_rgb": np.asarray(rgb).copy(),
             "mask": np.asarray(seg).copy(),
             "result_rgb": np.asarray(vis).copy(),
         }
-        return _original_panel_fn(rgb, Lr_u, ent_u, deltaE, seg, vis, porcentaje)
+        return _original_panel_fn(rgb, lr_u, ent_u, delta_e, seg, vis, porcentaje)
 
     segment_mildew._panel_to_array = _panel_hook
 
 
-def engine():
+def engine() -> str:
+    """Devuelve el nombre del motor de inferencia activo en el servidor."""
     return "gulupa" if gulupa_pipeline.available() else "powderyvision7"
 
 
-# ---------------------------------------------------------------------------
-# Utilidades
-# ---------------------------------------------------------------------------
-def _resize_max(img, max_side):
+def _resize_max(img: np.ndarray, max_side: int) -> np.ndarray:
+    """Redimensiona una imagen si su lado mayor supera `max_side` píxeles."""
     h, w = img.shape[:2]
     if max(h, w) <= max_side:
         return img
-    s = max_side / float(max(h, w))
+    scale = max_side / float(max(h, w))
     interp = cv2.INTER_NEAREST if img.ndim == 2 else cv2.INTER_AREA
-    return cv2.resize(img, (int(w * s), int(h * s)), interpolation=interp)
+    return cv2.resize(img, (int(w * scale), int(h * scale)), interpolation=interp)
 
 
-def _b64(img_bgr_or_gray, fmt=".jpg"):
+def _b64(img_bgr_or_gray: np.ndarray | None, fmt: str = ".jpg") -> str | None:
+    """Codifica un arreglo de imagen OpenCV en una cadena Base64."""
     if img_bgr_or_gray is None:
         return None
     img = _resize_max(img_bgr_or_gray, MAX_SIDE_RETURN)
@@ -95,15 +91,17 @@ def _b64(img_bgr_or_gray, fmt=".jpg"):
     return base64.b64encode(buf.tobytes()).decode("ascii") if ok else None
 
 
-def _read_static(web_path):
-    """El pipeline devuelve rutas tipo '/static/results/x.png'."""
+def _read_static(web_path: str | None) -> np.ndarray | None:
+    """Lee una imagen generada en una ruta relativa tipo `/static/results/...`."""
     if not web_path:
         return None
     return cv2.imread(web_path.lstrip("/"), cv2.IMREAD_COLOR)
 
 
-def _overlay_rgba(mask, color_bgr=(57, 57, 229)):
-    """Máscara de lesión coloreada con fondo transparente (PNG RGBA)."""
+def _overlay_rgba(
+    mask: np.ndarray, color_bgr: tuple[int, int, int] = (57, 57, 229)
+) -> np.ndarray:
+    """Genera una máscara PNG RGBA con fondo transparente para superposición."""
     h, w = mask.shape[:2]
     out = np.zeros((h, w, 4), dtype=np.uint8)
     on = mask > 0
@@ -112,26 +110,25 @@ def _overlay_rgba(mask, color_bgr=(57, 57, 229)):
     return out
 
 
-def _hue_channel(leaf_rgb):
+def _hue_channel(leaf_rgb: np.ndarray) -> np.ndarray:
+    """Genera un mapa de calor falso color a partir del canal Hue (HSV)."""
     hsv = cv2.cvtColor(leaf_rgb, cv2.COLOR_RGB2HSV)
-    h = cv2.normalize(hsv[:, :, 0], None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
-    return cv2.applyColorMap(h, cv2.COLORMAP_HSV)
+    norm_h = cv2.normalize(hsv[:, :, 0], None, 0, 255, cv2.NORM_MINMAX).astype(
+        np.uint8
+    )
+    return cv2.applyColorMap(norm_h, cv2.COLORMAP_HSV)
 
 
-def _split_bilingual(msg):
-    """'English / Español' -> (en, es)."""
+def _split_bilingual(msg: str | None) -> tuple[str | None, str | None]:
+    """Separa un mensaje bilingüe `'English / Español'` en una tupla `(en, es)`."""
     if not msg:
         return None, None
     parts = msg.split(" / ", 1)
     return (parts[0], parts[1]) if len(parts) == 2 else (msg, msg)
 
 
-def _damages(res):
-    """
-    Lista genérica de daños (clave + % del área). Hoy el modelo solo conoce
-    mildiu polvoso; cuando exista el modelo de gulupa basta con devolver aquí
-    'scab' (roña), 'mechanical' (daño mecánico), 'thrips' (trips), etc.
-    """
+def _damages(res: dict[str, Any]) -> list[dict[str, Any]]:
+    """Construye la lista estándar de daños y porcentajes de severidad."""
     if res.get("is_healthy"):
         return [{"key": "healthy", "pct": 100.0}]
     sev = float(res.get("severidad_pct") or 0.0)
@@ -142,16 +139,23 @@ def _damages(res):
     ]
 
 
-# ---------------------------------------------------------------------------
-# Rutas
-# ---------------------------------------------------------------------------
 @app.route("/api/health", methods=["GET"])
-def api_health():
-    return jsonify({"ok": True, "api_version": API_VERSION, "engine": engine(),
-                    "gulupa_model": gulupa_pipeline.MODEL_PATH if gulupa_pipeline.available() else None})
+def api_health() -> Response:
+    """Endpoint de verificación de salud y estado del motor de inferencia."""
+    return jsonify(
+        {
+            "ok": True,
+            "api_version": API_VERSION,
+            "engine": engine(),
+            "gulupa_model": (
+                gulupa_pipeline.MODEL_PATH if gulupa_pipeline.available() else None
+            ),
+        }
+    )
 
 
-def _analyze_gulupa(bgr):
+def _analyze_gulupa(bgr: np.ndarray) -> Response:
+    """Procesa una imagen BGR con el pipeline específico de gulupa."""
     res = gulupa_pipeline.analyze(bgr)
     layers = res.pop("layers", {}) or {}
     images = {
@@ -163,42 +167,70 @@ def _analyze_gulupa(bgr):
         "result": _b64(layers.get("result")),
         "hue": _b64(layers.get("hue")),
         "panel": None,
-        "overlays": {k: _b64(v, ".png") for k, v in (layers.get("overlays") or {}).items()},
+        "overlays": {
+            k: _b64(v, ".png") for k, v in (layers.get("overlays") or {}).items()
+        },
     }
     msg_en, msg_es = _split_bilingual(res.get("msg"))
-    res.update({"api_version": API_VERSION, "engine": "gulupa", "msg_en": msg_en, "msg_es": msg_es,
-                "images": images})
+    res.update(
+        {
+            "api_version": API_VERSION,
+            "engine": "gulupa",
+            "msg_en": msg_en,
+            "msg_es": msg_es,
+            "images": images,
+        }
+    )
     if not res.get("ok"):
         res["damages"] = []
     return jsonify(res)
 
 
 @app.route("/api/analyze", methods=["POST"])
-def api_analyze():
+def api_analyze() -> tuple[Response, int] | Response:
+    """Endpoint principal para analizar una fotografía enviada desde la app móvil."""
     file = request.files.get("image")
     if not file or file.filename == "":
-        return jsonify({
-            "ok": False, "api_version": API_VERSION,
-            "msg": "No image was received. / No se recibió ninguna imagen.",
-        }), 400
+        return (
+            jsonify(
+                {
+                    "ok": False,
+                    "api_version": API_VERSION,
+                    "msg": "No image was received. / No se recibió ninguna imagen.",
+                }
+            ),
+            400,
+        )
 
     bgr = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)
     if bgr is None:
-        return jsonify({
-            "ok": False, "api_version": API_VERSION,
-            "msg": "Could not read the image. / No se pudo leer la imagen.",
-        }), 400
+        return (
+            jsonify(
+                {
+                    "ok": False,
+                    "api_version": API_VERSION,
+                    "msg": "Could not read the image. / No se pudo leer la imagen.",
+                }
+            ),
+            400,
+        )
 
     bgr = _resize_max(bgr, MAX_SIDE_UPLOAD)
 
     if gulupa_pipeline.available():
         try:
             return _analyze_gulupa(bgr)
-        except Exception as e:  # noqa: BLE001
-            return jsonify({
-                "ok": False, "api_version": API_VERSION,
-                "msg": f"Gulupa model error: {e} / Error en el modelo de gulupa: {e}",
-            }), 500
+        except Exception as exc:  # noqa: BLE001
+            return (
+                jsonify(
+                    {
+                        "ok": False,
+                        "api_version": API_VERSION,
+                        "msg": f"Gulupa model error: {exc} / Error en el modelo de gulupa: {exc}",
+                    }
+                ),
+                500,
+            )
 
     prefix = "api_" + uuid.uuid4().hex[:8]
     save_root = os.path.join("static", "results", prefix)
@@ -208,18 +240,24 @@ def api_analyze():
         res = run_full_pipeline(bgr, save_root=save_root, prefix=prefix)
         layers = getattr(_capture, "layers", None)
 
-        images = {
+        images: dict[str, Any] = {
             "original": _b64(bgr),
             "crop": _b64(_read_static(res.get("crop_img_path"))),
             "panel": _b64(_read_static(res.get("panel_img_path"))),
-            "leaf": None, "mask": None, "overlay": None, "result": None, "hue": None,
+            "leaf": None,
+            "mask": None,
+            "overlay": None,
+            "result": None,
+            "hue": None,
         }
         if layers is not None and res.get("seg_ok"):
             leaf_bgr = cv2.cvtColor(layers["leaf_rgb"], cv2.COLOR_RGB2BGR)
             images["leaf"] = _b64(leaf_bgr)
             images["mask"] = _b64(layers["mask"], ".png")
             images["overlay"] = _b64(_overlay_rgba(layers["mask"]), ".png")
-            images["result"] = _b64(cv2.cvtColor(layers["result_rgb"], cv2.COLOR_RGB2BGR))
+            images["result"] = _b64(
+                cv2.cvtColor(layers["result_rgb"], cv2.COLOR_RGB2BGR)
+            )
             images["hue"] = _b64(_hue_channel(layers["leaf_rgb"]))
 
         msg_en, msg_es = _split_bilingual(res.get("msg"))
@@ -247,11 +285,17 @@ def api_analyze():
             "images": images,
         }
         return jsonify(payload)
-    except Exception as e:  # noqa: BLE001
-        return jsonify({
-            "ok": False, "api_version": API_VERSION,
-            "msg": f"Model pipeline error: {e} / Error en el pipeline de modelos: {e}",
-        }), 500
+    except Exception as exc:  # noqa: BLE001
+        return (
+            jsonify(
+                {
+                    "ok": False,
+                    "api_version": API_VERSION,
+                    "msg": f"Model pipeline error: {exc} / Error en el pipeline de modelos: {exc}",
+                }
+            ),
+            500,
+        )
     finally:
         _capture.layers = None
         shutil.rmtree(save_root, ignore_errors=True)
