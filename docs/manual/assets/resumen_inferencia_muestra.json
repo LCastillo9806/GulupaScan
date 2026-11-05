@@ -1,0 +1,56 @@
+{
+  "foto_muestra": "docs/manual/assets/muestra_real_gulupa.jpg",
+  "dimensiones_originales": "960x1280",
+  "confianza_fruto_pct": 80.56,
+  "severidad_rona_pct": 32.59,
+  "recorte_fruto_px": "589x589",
+  "area_fruto_px_640": 188216,
+  "area_lesion_px_640": 61340,
+  "resoluciones": [
+    {
+      "clave": "low",
+      "etiqueta": "Baja (640 px)",
+      "resolucion_entrada": "480x640",
+      "recorte_px": "296x295",
+      "confianza_fruto_pct": 92.3,
+      "severidad_pct": 30.2,
+      "tiempo_ms": 187
+    },
+    {
+      "clave": "medium",
+      "etiqueta": "Media (1024 px)",
+      "resolucion_entrada": "768x1024",
+      "recorte_px": "470x472",
+      "confianza_fruto_pct": 89.9,
+      "severidad_pct": 0.0,
+      "tiempo_ms": 285
+    },
+    {
+      "clave": "high",
+      "etiqueta": "Alta (2048 px)",
+      "resolucion_entrada": "960x1280",
+      "recorte_px": "589x589",
+      "confianza_fruto_pct": 80.6,
+      "severidad_pct": 32.59,
+      "tiempo_ms": 300
+    },
+    {
+      "clave": "original",
+      "etiqueta": "Original (Sensor)",
+      "resolucion_entrada": "960x1280",
+      "recorte_px": "589x589",
+      "confianza_fruto_pct": 80.6,
+      "severidad_pct": 32.59,
+      "tiempo_ms": 358
+    },
+    {
+      "clave": "ultra",
+      "etiqueta": "Ultra Alta (4096 px)",
+      "resolucion_entrada": "960x1280",
+      "recorte_px": "589x589",
+      "confianza_fruto_pct": 80.6,
+      "severidad_pct": 32.59,
+      "tiempo_ms": 261
+    }
+  ]
+}

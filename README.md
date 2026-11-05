@@ -12,7 +12,7 @@
 
 **Universidad Nacional de Colombia (UNAL)** · *Facultad de Ciencias Agrarias & Facultad de Ingeniería*
 
-[Explorar Modelos ONNX](./models/README.md) · [Descargar APK (Actions)](https://github.com/jf-floresriera/gulupascaner/actions) · [Guía de Reproducción](#5-instalación-y-ejecución-paso-a-paso) · [Cómo Citar](#8-cómo-citar-esta-investigación--how-to-cite)
+[Manual Técnico y de Usuario](./docs/MANUAL_USUARIO_Y_TECNICO.md) · [Explorar Modelos ONNX](./models/README.md) · [Descargar APK (Actions)](https://github.com/jf-floresriera/gulupascaner/actions) · [Guía de Reproducción](#5-instalación-y-ejecución-paso-a-paso) · [Cómo Citar](#8-cómo-citar-esta-investigación--how-to-cite)
 
 </div>
 
