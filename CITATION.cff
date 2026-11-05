@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+title: "GulupaScan: Detection and Severity Quantification of Epidermal Damage in Purple Passion Fruit (Passiflora edulis Sims) Using Dual-Stage YOLO26n-seg ONNX Models"
+message: "Si utilizas este software, los modelos ONNX o la arquitectura móvil en tu investigación, por favor cítalo con los siguientes metadatos."
+type: software
+version: 0.3.0
+date-released: "2026-11-05"
+url: "https://github.com/jf-floresriera/gulupascaner"
+repository-code: "https://github.com/jf-floresriera/gulupascaner"
+license: MIT
+keywords:
+  - computer-vision
+  - plant-pathology
+  - passion-fruit
+  - passiflora-edulis
+  - yolo
+  - onnx-runtime
+  - edge-ai
+  - precision-agriculture
+  - android
+  - ios
+authors:
+  - family-names: "Flores-Riera"
+    given-names: "Jesús Enrique"
+    affiliation: "Universidad Nacional de Colombia, Facultad de Ciencias Agrarias"
+  - family-names: "Ramírez-Gil"
+    given-names: "Joaquín Guillermo"
+    affiliation: "Universidad Nacional de Colombia, Facultad de Ciencias Agrarias"
+  - family-names: "Castillo Sanabria"
+    given-names: "Luis Alberto"
+    affiliation: "Universidad Nacional de Colombia, Facultad de Ciencias Agrarias"
+  - family-names: "Lavado González"
+    given-names: "Diego Humberto"
+    affiliation: "Universidad Nacional de Colombia, Facultad de Ingeniería"
+  - family-names: "Ahumada Hernández"
+    given-names: "Daniel Felipe"
+    affiliation: "Universidad Nacional de Colombia, Facultad de Ingeniería"
