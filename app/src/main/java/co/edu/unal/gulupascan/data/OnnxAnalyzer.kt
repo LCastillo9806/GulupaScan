@@ -313,6 +313,7 @@ class OnnxLocalAnalyzer(
     }
 
     private fun reducir(b: Bitmap, ladoMax: Int): Bitmap {
+        if (ladoMax <= 0) return b // Modo Original del equipo: conserva el 100% de los píxeles del sensor
         val escala = ladoMax.toFloat() / max(b.width, b.height)
         return if (escala >= 1f) b
         else Bitmap.createScaledBitmap(b, (b.width * escala).roundToInt(), (b.height * escala).roundToInt(), true)

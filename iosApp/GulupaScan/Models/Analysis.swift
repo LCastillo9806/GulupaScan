@@ -43,15 +43,19 @@ enum AppLanguage: String, Codable, CaseIterable {
 }
 
 enum AnalysisResolution: String, Codable, CaseIterable {
-    case medium = "medium" // 1024 px · Rápida (1 pasada)
-    case high   = "high"   // 2048 px · Alta / Estándar (1 pasada)
-    case ultra  = "ultra"  // 4096 px · Ultra Alta (Original + cuadrantes 2x2 HD)
+    case low      = "low"      // 640 px · Baja / VGA (ultrarrápida para equipos básicos)
+    case medium   = "medium"   // 1024 px · Media / HD (rápida, 1 pasada)
+    case high     = "high"     // 2048 px · Alta / 2K (estándar recomendado)
+    case original = "original" // 0 (Nativa) · Resolución original del sensor de la cámara sin reescalar
+    case ultra    = "ultra"    // 4096 px · Ultra Alta (Original + cuadrantes 2x2 HD = 1280x1280 efectivo)
 
     var maxSidePx: Int {
         switch self {
-        case .medium: return 1024
-        case .high:   return 2048
-        case .ultra:  return 4096
+        case .low:      return 640
+        case .medium:   return 1024
+        case .high:     return 2048
+        case .original: return 0
+        case .ultra:    return 4096
         }
     }
 
@@ -61,17 +65,21 @@ enum AnalysisResolution: String, Codable, CaseIterable {
 
     func title(_ lang: AppLanguage) -> String {
         switch self {
-        case .medium: return lang == .english ? "Medium" : "Media"
-        case .high:   return lang == .english ? "High" : "Alta"
-        case .ultra:  return lang == .english ? "Ultra HD" : "Ultra Alta"
+        case .low:      return lang == .english ? "Low" : "Baja"
+        case .medium:   return lang == .english ? "Medium" : "Media"
+        case .high:     return lang == .english ? "High" : "Alta"
+        case .original: return lang == .english ? "Original" : "Original"
+        case .ultra:    return lang == .english ? "Ultra 2×2" : "Ultra 2×2"
         }
     }
 
     func subtitle(_ lang: AppLanguage) -> String {
         switch self {
-        case .medium: return lang == .english ? "Fast · 1024px" : "Rápida · 1024px"
-        case .high:   return lang == .english ? "Std · 2048px" : "Estándar · 2048px"
-        case .ultra:  return lang == .english ? "4K + 2×2 Tiles" : "4K + 2×2 Tiles"
+        case .low:      return lang == .english ? "Fastest · VGA 640px" : "Ultrarrápida · VGA 640px"
+        case .medium:   return lang == .english ? "Fast · HD 1024px" : "Rápida · HD 1024px"
+        case .high:     return lang == .english ? "Standard · 2K 2048px" : "Estándar · 2K 2048px"
+        case .original: return lang == .english ? "Native camera sensor (100%)" : "Sensor nativo del equipo (100%)"
+        case .ultra:    return lang == .english ? "Native + 2×2 Tiles (1280×1280 eff.)" : "Nativa + 2×2 Tiles (1280×1280 ef.)"
         }
     }
 }
