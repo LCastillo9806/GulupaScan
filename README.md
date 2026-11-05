@@ -1,187 +1,198 @@
-# GulupaScan (v0.3.0) — Android & iOS
+<div align="center">
 
-**Detección y cuantificación de daños fitosanitarios en frutos de gulupa (*Passiflora edulis* Sims f. *edulis*) mediante visión por computador y segmentación profunda en dos etapas (YOLO26n-seg + ONNX Runtime) 100 % en el dispositivo.**
+# 🟣 GulupaScan v0.3.0
+### Detección y Cuantificación de Severidad de Daños Epidérmicos en Gulupa (*Passiflora edulis* Sims) mediante Modelos ONNX `YOLO26n-seg` en Dos Etapas (Android & iOS)
 
-Desarrollado en la **Universidad Nacional de Colombia (UNAL)**.
+[![Release](https://img.shields.io/badge/version-0.3.0-5D2741?style=for-the-badge)](https://github.com/jf-floresriera/gulupascaner/releases)
+[![Android CI](https://img.shields.io/github/actions/workflow/status/jf-floresriera/gulupascaner/build-apk.yml?branch=main&style=for-the-badge&logo=android&label=Android%20APK)](https://github.com/jf-floresriera/gulupascaner/actions)
+[![iOS SwiftUI](https://img.shields.io/badge/iOS-16.0%2B%20SwiftUI-005828?style=for-the-badge&logo=apple)](./iosApp)
+[![ONNX Runtime](https://img.shields.io/badge/ONNX%20Runtime-INT8%20Offline-00A85A?style=for-the-badge&logo=onnx)](./models/README.md)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](./scripts/referencia_onnx.py)
+[![License: MIT](https://img.shields.io/badge/License-MIT-FEDC7A?style=for-the-badge&labelColor=2A1A22)](./CITATION.cff)
+
+**Universidad Nacional de Colombia (UNAL)** · *Facultad de Ciencias Agrarias & Facultad de Ingeniería*
+
+[Explorar Modelos ONNX](./models/README.md) · [Descargar APK (Actions)](https://github.com/jf-floresriera/gulupascaner/actions) · [Guía de Reproducción](#5-instalación-y-ejecución-paso-a-paso) · [Cómo Citar](#8-cómo-citar-esta-investigación--how-to-cite)
+
+</div>
 
 ---
 
-## Tabla de Contenidos
-1. [Arquitectura del Repositorio](#1-arquitectura-del-repositorio)
-2. [Stack Tecnológico por Sistema Operativo](#2-stack-tecnológico-por-sistema-operativo)
-3. [Pipeline de Inteligencia Artificial (Modelos ONNX)](#3-pipeline-de-inteligencia-artificial-modelos-onnx)
-4. [Selector de Resolución de Procesamiento (Media / Alta / Ultra Alta)](#4-selector-de-resolución-de-procesamiento-media--alta--ultra-alta)
-5. [Guía Rápida: Compilar y Ejecutar en Android Studio](#5-guía-rápida-compilar-y-ejecutar-en-android-studio)
-6. [Guía Rápida: Compilar y Ejecutar en Xcode (iOS / iPhone)](#6-guía-rápida-compilar-y-ejecutar-en-xcode-ios--iphone)
-7. [Comandos para Subir / Actualizar en GitHub](#7-comandos-para-subir--actualizar-en-github)
+## 📑 Índice de Contenidos
+
+1. [Descripción General del Proyecto](#1-descripción-general-del-proyecto)
+2. [Arquitectura de Inteligencia Artificial en Dos Etapas (`YOLO26n-seg`)](#2-arquitectura-de-inteligencia-artificial-en-dos-etapas-yolo26n-seg)
+3. [Modos de Resolución de Cámara e Inferencia Multi-Escala `2×2`](#3-modos-de-resolución-de-cámara-e-inferencia-multi-escala-22)
+4. [Stack Tecnológico por Sistema Operativo](#4-stack-tecnológico-por-sistema-operativo)
+5. [Instalación y Ejecución Paso a Paso (Android, iOS, Anaconda y Docker)](#5-instalación-y-ejecución-paso-a-paso)
+6. [Estructura del Repositorio](#6-estructura-del-repositorio)
+7. [Equipo de Investigación y Desarrollo](#7-equipo-de-investigación-y-desarrollo)
+8. [Cómo Citar esta Investigación / How to Cite](#8-cómo-citar-esta-investigación--how-to-cite)
 
 ---
 
-## 1. Arquitectura del Repositorio
+## 1. Descripción General del Proyecto
 
-El repositorio contiene **ambas aplicaciones nativas** (Android y iOS) compartiendo exactamente los mismos modelos neuronales `.onnx`, activos gráficos institucionales, tipografía y lógica matemática:
+**GulupaScan** es una herramienta científica y agronómica de **diagnóstico fitosanitario asistido por visión computacional en el borde (*Edge AI*)** para frutos de gulupa (*Passiflora edulis* f. *edulis* Sims). Funciona **100 % sin conexión a internet** directamente en teléfonos **Android** e **iPhone (iOS)**, permitiendo a productores, asistentes técnicos y empacadoras de exportación cuantificar en segundos:
+
+- **Sarna o Roña** (*Cladosporium cladosporioides*)
+- **Antracnosis** (*Colletotrichum gloeosporioides*)
+- **Mancha de Aceite / Bacteriosis** (*Xanthomonas axonopodis* pv. *passiflorae*)
+- **Porcentaje exacto de área epidérmica afectada (%)**, clasificación en **escala de severidad 1–10** y generación de **informes técnicos en PDF**.
+
+---
+
+## 2. Arquitectura de Inteligencia Artificial en Dos Etapas (`YOLO26n-seg`)
+
+```mermaid
+flowchart LR
+    A["Fotografía del Fruto\n(640p / 1024p / 2048p / Sensor Nativo / Ultra 2×2)"] --> B["Etapa A: gulupa_fruto.onnx\nYOLO26n-seg INT8 (480×480)"]
+    B --> C["Recorte + Aislamiento\nMargen 10% · Dilatación 0.4%\nFondo Gris RGB(128,128,128)"]
+    C --> D["Etapa B: gulupa_lesiones.onnx\nYOLO26n-seg INT8 (640×640)"]
+    D --> E["Severidad (%) + Escala 1–10\n+ Reporte PDF Fitosanitario"]
+```
+
+| Etapa | Archivo ONNX (INT8) | Entrada | Salidas (`output0` / `output1`) | Peso FP32 | Peso INT8 | IoU vs. PyTorch | Detección Principal | Documentación |
+| :--- | :--- | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **Etapa A (Fruto)** | `gulupa_fruto.onnx` | `[1, 3, 480, 480]` | `[1, 300, 38]` / `[1, 32, 120, 120]` | 11.07 MB | **3.23 MB** | **0.9813** | **100.0 %** | [`MODELO_A_FRUTO.md`](./models/MODELO_A_FRUTO.md) |
+| **Etapa B (Lesiones)** | `gulupa_lesiones.onnx` | `[1, 3, 640, 640]` | `[1, 300, 38]` / `[1, 32, 160, 160]` | 11.14 MB | **3.30 MB** | **0.9022** | **100.0 %** | [`MODELO_B_LESIONES.md`](./models/MODELO_B_LESIONES.md) |
+
+La severidad total se calcula píxel a píxel sobre la rejilla del recorte:
+
+$$\text{Severidad Total (\%)} = 100 \times \frac{\text{Área}(\text{Lesiones} \cap \text{Fruto})}{\text{Área}(\text{Fruto} \cup \text{Lesiones})}$$
+
+---
+
+## 3. Modos de Resolución de Cámara e Inferencia Multi-Escala `2×2`
+
+Tanto en la barra inferior de la cámara como en la pantalla de **Configuración**, el usuario puede elegir entre **5 niveles de resolución** según la capacidad del teléfono y el tamaño de las lesiones:
+
+| Nivel | Resolución de Entrada | Descripción Técnica |
+| :--- | :---: | :--- |
+| **Baja (`LOW`)** | `640 px` (VGA) | Captura rápida de baja latencia para teléfonos básicos. |
+| **Media (`MEDIUM`)** | `1024 px` (HD) | Balance ágil de 1 pasada para monitoreo rápido en lote. |
+| **Alta (`HIGH`)** | `2048 px` (2K) | Estándar recomendado: garantiza que el recorte del fruto conserve $\ge 640\text{ px}$ reales. |
+| **Original (`ORIGINAL`)** | **100 % Sensor Nativo** | Conserva la resolución nativa completa del sensor de la cámara (12 MP – 48 MP) sin reescalado previo. |
+| **Ultra `2×2` (`ULTRA`)** | **Nativa / 4K + Tiling `2×2`** | Ejecuta 1 pasada global + 4 cuadrantes superpuestos al 60 % con `gulupa_lesiones.onnx`, alcanzando **`1280×1280` píxeles efectivos** sobre el fruto sin necesidad de reentrenar los pesos ONNX. |
+
+---
+
+## 4. Stack Tecnológico por Sistema Operativo
+
+| Componente | Android (`app/` y `app/android/`) | iOS (`iosApp/`) | Backend / Validación (`app/backend/`, `scripts/`) |
+| :--- | :--- | :--- | :--- |
+| **Lenguaje** | Kotlin `2.0.21` (JVM 17) | Swift `5.9+` | Python `3.10+` |
+| **Framework UI** | Jetpack Compose + Material 3 | SwiftUI + Canvas nativo | Flask + Gunicorn REST API |
+| **Motor de Inferencia** | `onnxruntime-android:1.20.0` | `onnxruntime-objc:1.24.2` | `onnxruntime` / `ultralytics` |
+| **Cámara y Galería** | CameraX `1.4.1` (`ResolutionSelector` 4:3) | `PhotosPicker` + `UIImagePickerController` | OpenCV (`cv2`) + NumPy |
+| **Reportes** | Android `PdfDocument` | `UIGraphicsPDFRenderer` | JSON + Capas PNG/JPEG Base64 |
+
+---
+
+## 5. Instalación y Ejecución Paso a Paso
+
+### A. Validador de Referencia y Entorno Python con **Anaconda / Conda**
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/jf-floresriera/gulupascaner.git
+cd gulupascaner
+
+# 2. Crear y activar entorno Conda
+conda create -n gulupascan python=3.11 -y
+conda activate gulupascan
+
+# 3. Instalar dependencias de inferencia ONNX y visión por computador
+pip install onnxruntime opencv-python numpy flask PyGithub
+
+# 4. Ejecutar validación de referencia sobre una fotografía en cualquier resolución
+python scripts/referencia_onnx.py --resolucion high ruta/a/foto_gulupa.jpg
+```
+
+### B. Despliegue del Backend API con **Docker**
+
+```bash
+# Construir imagen del servidor de inferencia a partir del proyecto base
+docker build -t gulupascan-api -f proyecto-base/powderyvision7/Dockerfile .
+
+# Ejecutar contenedor en el puerto 5000
+docker run --rm -p 5000:5000 -e PORT=5000 gulupascan-api
+```
+
+### C. Compilación de la App **Android** (Android Studio / Gradle)
+
+```bash
+# Compilar APK Debug desde la raíz del proyecto
+./gradlew :app:assembleDebug
+
+# El APK instalable se genera en:
+# app/build/outputs/apk/debug/app-debug.apk
+```
+
+### D. Compilación de la App **iOS** (macOS con Xcode 15/16+)
+
+```bash
+# Compilar e instalar en el simulador iPhone 17
+xcodebuild -project iosApp/GulupaScan.xcodeproj \
+           -scheme GulupaScan \
+           -destination 'platform=iOS Simulator,name=iPhone 17' \
+           -derivedDataPath /tmp/GulupaScanBuild build
+
+xcrun simctl install "iPhone 17" /tmp/GulupaScanBuild/Build/Products/Debug-iphonesimulator/GulupaScan.app
+xcrun simctl launch "iPhone 17" co.edu.unal.gulupascan
+```
+
+---
+
+## 6. Estructura del Repositorio
 
 ```text
 gulupascaner/
-├── app/                                  # Aplicación Nativa Android (Kotlin + Jetpack Compose)
-│   ├── build.gradle.kts                  # Configuración Gradle, CameraX, ONNX Runtime Android
-│   └── src/main/
-│       ├── AndroidManifest.xml
-│       ├── assets/models/                # Modelos neuronales ONNX integrados
-│       │   ├── gulupa_fruto.onnx         # Etapa A: Segmentación de fruto (480×480, ~3.1 MB)
-│       │   ├── gulupa_lesiones.onnx      # Etapa B: Segmentación de lesiones (640×640, ~3.2 MB)
-│       │   ├── metadata_fruto.json
-│       │   └── metadata_lesiones.json
-│       ├── java/co/edu/unal/gulupascan/
-│       │   ├── MainActivity.kt           # Navegación y cambio dinámico de idioma/tema
-│       │   ├── AppViewModel.kt           # Estado reactivo y flujo de escaneo
-│       │   ├── data/
-│       │   │   ├── OnnxAnalyzer.kt       # Inferencia ONNX en dos etapas + Multi-Tile 2×2
-│       │   │   ├── PdfReportGenerator.kt # Generador de informes técnicos PDF A4
-│       │   │   └── SessionStore.kt       # Persistencia local (DataStore)
-│       │   ├── domain/                   # Modelos de dominio, catálogo de daños y severidad 1–10
-│       │   └── ui/                       # Pantallas Compose, animaciones de marca y temas
-│       └── res/                          # Textos bilingües (ES/EN), fuente Patrick Hand y fotos
-│
-├── iosApp/                               # Aplicación Nativa iOS (Swift + SwiftUI)
-│   ├── GulupaScan.xcodeproj/             # Proyecto oficial de Xcode listo para abrir
-│   ├── project.yml                       # Especificación XcodeGen reproducible
-│   └── GulupaScan/
-│       ├── Info.plist                    # Permisos de cámara/fotos y registro de fuente
-│       ├── Models/
-│       │   └── Analysis.swift            # Dominio, paletas Morado/Verde, escala 1–10, resoluciones
-│       ├── Services/
-│       │   └── GulupaAnalyzer.swift      # Motor ONNX Runtime C++ Bridge + PDF Generator (CoreGraphics)
-│       ├── Views/
-│       │   └── GulupaScanApp.swift       # Interfaz completa SwiftUI (11 pantallas + animaciones)
-│       └── Resources/                    # Modelos .onnx, fotos del equipo, logos y patrick_hand.ttf
-│
-├── build.gradle.kts                      # Configuración raíz de Gradle
-├── settings.gradle.kts
-└── README.md                             # Este documento
+├── app/                        # Proyecto Android principal (Kotlin + Jetpack Compose + ONNX)
+│   ├── src/main/assets/        # Modelos gulupa_fruto.onnx, gulupa_lesiones.onnx y metadatos JSON
+│   └── android/                # Espejo Android sincronizado para el workflow CI/CD de GitHub Actions
+├── iosApp/                     # Proyecto nativo iOS (SwiftUI + ONNX Runtime ObjC)
+│   ├── GulupaScan.xcodeproj/   # Proyecto Xcode listo para abrir y ejecutar
+│   └── GulupaScan/             # Modelos, Servicios ONNX, Vistas SwiftUI y Recursos
+├── models/                     # Fichas técnicas detalladas (MODELO_A_FRUTO.md y MODELO_B_LESIONES.md)
+├── scripts/                    # Validador de referencia ONNX (referencia_onnx.py) y utilidades GitHub
+├── docs/                       # Documentación técnica, guía de modelos y kit de divulgación científica
+├── CITATION.cff                # Metadatos oficiales de citación científica para GitHub
+└── README.md                   # Este documento
 ```
 
 ---
 
-## 2. Stack Tecnológico por Sistema Operativo
+## 7. Equipo de Investigación y Desarrollo
 
-| Componente | Android (`app/`) | iOS (`iosApp/`) |
-| :--- | :--- | :--- |
-| **Lenguaje** | Kotlin 2.2 | Swift 5.9+ |
-| **Framework de UI** | Jetpack Compose + Material 3 | SwiftUI + Canvas vectorial |
-| **Motor de Inferencia IA** | `com.microsoft.onnxruntime:onnxruntime-android:1.20.0` | `onnxruntime-objc` (`1.24.2` vía Swift Package Manager) |
-| **Cámara y Galería** | AndroidX CameraX (`1.4.1`) + PhotoPicker | `UIImagePickerController` + `PhotosPicker` (`PhotosUI`) |
-| **Generación de PDF** | `android.graphics.pdf.PdfDocument` | `UIGraphicsPDFRenderer` (CoreGraphics A4) |
-| **Persistencia Local** | Jetpack DataStore (`Preferences`) + JSON | `UserDefaults` + `FileManager` JSON |
-| **Idiomas Soportados** | Español (`es`) / Inglés (`en`) en tiempo real | Español (`es`) / Inglés (`en`) en tiempo real |
-| **Temas Visuales** | Morado Gulupa (`#9034BD` / `#5D2741`) y Verde Campo (`#005828`) | Morado Gulupa (`#9034BD` / `#5D2741`) y Verde Campo (`#005828`) |
+- **Jesús Enrique Flores-Riera** — *Facultad de Ciencias Agrarias, Universidad Nacional de Colombia (UNAL)*
+- **Joaquín Guillermo Ramírez-Gil** — *Profesor Asociado, Facultad de Ciencias Agrarias, Universidad Nacional de Colombia (UNAL)*
+- **Luis Alberto Castillo Sanabria** — *Facultad de Ciencias Agrarias, Universidad Nacional de Colombia (UNAL)*
+- **Diego Humberto Lavado González** — *Facultad de Ingeniería, Universidad Nacional de Colombia (UNAL)*
+- **Daniel Felipe Ahumada Hernández** — *Facultad de Ingeniería, Universidad Nacional de Colombia (UNAL)*
 
 ---
 
-## 3. Pipeline de Inteligencia Artificial (Modelos ONNX)
+## 8. Cómo Citar esta Investigación / How to Cite
 
-Ambas aplicaciones ejecutan exactamente el mismo pipeline secuencial **100 % offline en la CPU del teléfono**:
+Si utilizas **GulupaScan**, sus modelos ONNX cuantizados o su arquitectura móvil en tus trabajos académicos, tesis o desarrollos tecnológicos, por favor cita este repositorio:
 
-1. **Etapa A — Segmentación y Aislamiento del Fruto (`gulupa_fruto.onnx`)**:
-   - Arquitectura: **YOLO26n-seg** exportada a ONNX (`opset 17`).
-   - Entrada: Tensor `[1, 3, 480, 480]` normalizado en `[0, 1]` con *letterbox* gris `RGB(114, 114, 114)`.
-   - Salida: `output0 [1, 300, 38]` (cajas, confianza, clase y 32 coeficientes) + `output1 [1, 32, 120, 120]` (prototipos de máscara).
-   - Recorta el fruto principal con un margen del **10 %** (`margenRecorte = 0.10`), interpola bilinealmente la máscara y reemplaza el fondo exterior por **gris neutro `RGB(128, 128, 128)`** con holgura morfológica (`holguraFondo = 0.004`).
-
-2. **Etapa B — Segmentación de Lesiones Epidérmicas (`gulupa_lesiones.onnx`)**:
-   - Arquitectura: **YOLO26n-seg** entrenada sobre frutos aislados.
-   - Entrada: Tensor `[1, 3, 640, 640]` del fruto aislado.
-   - Clases del modelo:
-     - `0`: `fruit` (superficie de referencia)
-     - `1`: `scab` — **Sarna / Roña** (*Cladosporium cladosporioides*)
-     - `2`: `anthracnose` — **Antracnosis** (*Colletotrichum gloeosporioides*)
-     - `3`: `oil_spot` — **Mancha de aceite / Bacteriosis** (*Xanthomonas axonopodis* pv. *passiflorae*)
-
-3. **Cálculo Matemático de Severidad y Escala Agronómica (1–10)**:
-   $$\text{Severidad}_c (\%) = \frac{|\text{Máscara}_c \cap \text{Máscara}_{\text{fruto}}|}{|\text{Máscara}_{\text{fruto}}|} \times 100$$
-   - Clasificación comercial automática:
-     - **Fruto Sano (`< 1.0 %`)**: Calidad Extra — apto para exportación.
-     - **Daño Leve (`1.0 – 5.0 %`)**: Categoría I — requiere selección en poscosecha.
-     - **Daño Moderado (`5.0 – 15.0 %`)**: Categoría II — mercado nacional o agroindustria (pulpa).
-     - **Daño Severo (`> 15.0 %`)**: Descarte fitosanitario.
-
----
-
-## 4. Selector de Resolución de Procesamiento (Media / Alta / Ultra Alta)
-
-Sin necesidad de reentrenar los modelos `.onnx`, el usuario puede elegir en la **pantalla de Cámara** o en **Configuración** entre tres modos de resolución antes de analizar:
-
-- **Media (`1024 px`)**: Pre-escala la fotografía a un lado máximo de `1024 px` y ejecuta 1 pasada rápida (~0.4–0.8 s). Ideal para monitoreo rápido de lotes grandes.
-- **Alta (`2048 px` — Recomendada)**: Conserva hasta `2048 px` en el recorte del fruto para obtener bordes de máscara nítidos con excelente velocidad (~0.8–1.4 s).
-- **Ultra Alta (`4096 px + Tiling 2×2`)**: Conserva hasta `4096 px` y, además de la inferencia global del fruto, divide el recorte aislado en **4 cuadrantes solapados (2×2)** al 65 % del tamaño del fruto, ejecutando el Modelo B (`640×640`) sobre cada cuadrante y fusionando las máscaras de micro-lesiones a resolución nativa.
-
----
-
-## 5. Guía Rápida: Compilar y Ejecutar en Android Studio
-
-### Requisitos
-- **Android Studio Ladybug / Meerkat** (o superior) con **JDK 17+**.
-- Android SDK `35` (mínimo `API 26` / Android 8.0).
-
-### Pasos (3 pasos)
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/jf-floresriera/gulupascaner.git
-   cd gulupascaner
-   ```
-2. Abre la carpeta raíz `gulupascaner` en **Android Studio** y espera a que termine el **Gradle Sync**.
-3. Selecciona tu teléfono Android o un emulador y pulsa **Run (`▶`)**, o genera el APK desde terminal:
-   ```bash
-   ./gradlew assembleDebug
-   ```
-   El archivo instalable quedará en:
-   `app/build/outputs/apk/debug/app-debug.apk`
-
----
-
-## 6. Guía Rápida: Compilar y Ejecutar en Xcode (iOS / iPhone)
-
-### Requisitos
-- Un computador Mac con **Xcode 16+** instalado.
-- Simulador de iOS instalado en Xcode (`Xcode -> Settings -> Components -> iOS Simulator`) o un iPhone físico conectado por cable.
-
-### Pasos (3 pasos)
-1. Abre directamente el proyecto de Xcode desde la terminal:
-   ```bash
-   open iosApp/GulupaScan.xcodeproj
-   ```
-2. Xcode descargará automáticamente el paquete `onnxruntime-objc` vía Swift Package Manager.
-3. En la barra superior de Xcode, elige cualquier **iPhone Simulator** (por ejemplo *iPhone 16* o *iPhone Air*) y pulsa **Run (`▶` / `Cmd + R`)**.
-
-### Compilar y lanzar en el Simulador por Terminal (un solo comando)
-```bash
-xcodebuild -project iosApp/GulupaScan.xcodeproj \
-  -scheme GulupaScan \
-  -sdk iphonesimulator \
-  -configuration Debug \
-  build CODE_SIGNING_ALLOWED=NO
+### Formato BibTeX
+```bibtex
+@software{flores_riera_gulupascan_2026,
+  author       = {Flores-Riera, Jes{\'u}s Enrique and
+                  Ram{\'i}rez-Gil, Joaqu{\'i}n Guillermo and
+                  Castillo Sanabria, Luis Alberto and
+                  Lavado Gonz{\'a}lez, Diego Humberto and
+                  Ahumada Hern{\'a}ndez, Daniel Felipe},
+  title        = {{GulupaScan: Detection and Severity Quantification of Epidermal Damage in Purple Passion Fruit (Passiflora edulis Sims) Using Dual-Stage YOLO26n-seg ONNX Models}},
+  year         = {2026},
+  publisher    = {GitHub},
+  version      = {0.3.0},
+  institution  = {Universidad Nacional de Colombia},
+  url          = {https://github.com/jf-floresriera/gulupascaner}
+}
 ```
 
-*(Nota: Si en algún momento agregas nuevos archivos a `iosApp/GulupaScan/` y usas `xcodegen`, puedes regenerar el proyecto ejecutando `cd iosApp && xcodegen generate`).*
-
----
-
-## 7. Comandos para Subir / Actualizar en GitHub
-
-Copia y pega estos comandos en la terminal dentro de la carpeta del proyecto para subir tanto **Android (`app/`)** como **iOS (`iosApp/`)** y este **`README.md`** a tu repositorio de GitHub:
-
-```bash
-cd /Users/joaquinguillermoramirez-gil/AndroidStudioProjects/MyApplication
-
-# 1. Verificar estado de los archivos de Android + iOS
-git status
-
-# 2. Agregar todos los cambios (Android, iOS, modelos ONNX y documentación)
-git add app/ iosApp/ README.md build.gradle.kts settings.gradle.kts gradle/
-
-# 3. Crear el commit descriptivo
-git commit -m "feat(android,ios): versión 0.3.0 paridad completa Android/iOS, selector de resolución (Media/Alta/Ultra 2x2) y documentación"
-
-# 4. Subir a GitHub (rama actual y/o main)
-git push origin HEAD
-```
+### Formato APA (7.ª Edición)
+> Flores-Riera, J. E., Ramírez-Gil, J. G., Castillo Sanabria, L. A., Lavado González, D. H., & Ahumada Hernández, D. F. (2026). *GulupaScan: Detection and Severity Quantification of Epidermal Damage in Purple Passion Fruit (Passiflora edulis Sims) Using Dual-Stage YOLO26n-seg ONNX Models* (Versión 0.3.0) [Software de computador]. Universidad Nacional de Colombia. https://github.com/jf-floresriera/gulupascaner
