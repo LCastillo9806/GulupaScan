@@ -2764,38 +2764,50 @@ struct AboutScreen: View {
         [
             Member(
                 photo: "team_jesus.jpg",
-                name: "Jesus Francisco Flores Riera",
-                role: vm.t("Investigador Principal y Desarrollador de IA / Visión por Computador", "Lead Researcher & AI / Computer Vision Developer"),
-                org: "Universidad Nacional de Colombia",
+                name: "Jesús Enrique Flores-Riera",
+                role: vm.t("Investigador Principal · Maestría en Ciencias Agrarias", "Lead Researcher · M.Sc. Agricultural Sciences"),
+                org: vm.t("Facultad de Ciencias Agrarias · UNAL", "Faculty of Agricultural Sciences · UNAL"),
                 bio: vm.t(
-                    "Entrenamiento de redes YOLO26n-seg de segmentación en dos etapas, cuantización ONNX y desarrollo móvil multiplataforma.",
-                    "Two-stage YOLO26n-seg segmentation network training, ONNX quantization, and cross-platform mobile development."
+                    "Entrenamiento de redes YOLO26n-seg de segmentación en dos etapas, cuantización ONNX y validación fitopatológica.",
+                    "Two-stage YOLO26n-seg segmentation network training, ONNX quantization, and phytopathological validation."
                 ),
                 email: "jffloresr@unal.edu.co",
                 phone: "+57 300 000 0000"
             ),
             Member(
                 photo: "team_luis.jpg",
-                name: "Luis Fernando Gómez",
-                role: vm.t("Co-investigador · Fitopatología y Validación Agronómica", "Co-researcher · Plant Pathology & Agronomic Validation"),
-                org: "Universidad Nacional de Colombia",
+                name: "Luis Alberto Castillo Sanabria",
+                role: vm.t("Co-investigador · Ciencias Agrarias y Fitopatología", "Co-researcher · Agricultural Sciences & Plant Pathology"),
+                org: vm.t("Facultad de Ciencias Agrarias · UNAL", "Faculty of Agricultural Sciences · UNAL"),
                 bio: vm.t(
                     "Caracterización de sintomatología de Cladosporium, Colletotrichum y Xanthomonas en cultivos de gulupa de exportación.",
                     "Symptom characterization of Cladosporium, Colletotrichum, and Xanthomonas in export passion fruit crops."
                 ),
-                email: "lfgomezb@unal.edu.co",
+                email: "lacastillos@unal.edu.co",
                 phone: "+57 310 000 0000"
             ),
             Member(
+                photo: "team_diego.jpg",
+                name: "Diego Humberto Lavado González",
+                role: vm.t("Co-investigador · Ingeniería de Sistemas y Computación", "Co-researcher · Systems and Computing Engineering"),
+                org: vm.t("Facultad de Ingeniería · UNAL", "Faculty of Engineering · UNAL"),
+                bio: vm.t(
+                    "Arquitectura de software móvil, integración de inferencia en el borde (Edge AI) y experiencia de usuario en campo.",
+                    "Mobile software architecture, Edge AI inference integration, and field user experience."
+                ),
+                email: "dlavadog@unal.edu.co",
+                phone: "+57 315 000 0000"
+            ),
+            Member(
                 photo: "team_daniel.jpg",
-                name: "Daniel Alejandro Ramírez",
-                role: vm.t("Co-investigador · Procesamiento Digital de Imágenes y Datos", "Co-researcher · Digital Image Processing & Data"),
-                org: "Universidad Nacional de Colombia",
+                name: "Daniel Felipe Ahumada Hernández",
+                role: vm.t("Co-investigador · Ingeniería de Sistemas y Computación", "Co-researcher · Systems and Computing Engineering"),
+                org: vm.t("Facultad de Ingeniería · UNAL", "Faculty of Engineering · UNAL"),
                 bio: vm.t(
                     "Curaduría del conjunto de datos anotados en campo, calibración de escalas de severidad 1–10 y pruebas de inferencia.",
                     "Field annotated dataset curation, 1–10 severity scale calibration, and inference benchmarking."
                 ),
-                email: "daramirezg@unal.edu.co",
+                email: "dahumadah@unal.edu.co",
                 phone: "+57 320 000 0000"
             )
         ]
