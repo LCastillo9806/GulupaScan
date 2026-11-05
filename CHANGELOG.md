@@ -1,40 +1,23 @@
-# Changelog
+# Changelog — GulupaScan
 
-## [camara-info-ios] - 2026-11-03
-- Cámara: máxima calidad, mayor resolución 4:3, enfoque antes de disparar, tocar para enfocar y vista
-  previa igual a la foto. Las imágenes se analizan a 2048 px, como en el entrenamiento.
-- Análisis: si no hay fruto se pide otra foto en lugar de informar "sano"; se elimina la confianza fija
-  de 88 %; aviso cuando el fruto ocupa pocos píxeles.
-- Nuevas secciones en Perfil: Instrucciones de uso e Información técnica. Acerca de nosotros incluye al equipo.
-- Idioma: el selector cambia al instante toda la app, incluido el PDF, sin cerrar la cámara.
-- `docs/migracion-ios.md`: guía para migrar a iPhone. `scripts/referencia_onnx.py`: resultado de referencia
-  para validar cualquier implementación.
+Todos los cambios relevantes de este proyecto se documentan en este archivo siguiendo [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y [Semantic Versioning](https://semver.org/lang/es/).
 
-## [logos-transicion] - 2026-10-30
-- Nueva identidad visual: logo del fruto y letrero "GulupaScan" del equipo (imágenes con fondo
-  transparente), paleta ciruela/verde/amarillo/morado e ícono de la app sobre morado.
-- Transición de colores del logo en el inicio (splash) y mientras se hace la inferencia.
-- Lema "Detecta tu roña en la gulupa" con tipografía Patrick Hand (licencia OFL).
+## [0.3.0] — 2026-11-05
 
-## [tema-morado-modelo-gulupa] - 2026-10-30
-- App: tema **Morado gulupa** (colores y formas de la presentación) seleccionable en Configuración.
-- Backend: `gulupa_pipeline.py` (YOLO11-seg: fruto, roña, daño mecánico, trips) que se activa al
-  existir `models/gulupa_seg.pt`; `/api/health` informa el motor activo.
-- App: máscara propia por tipo de daño en el detalle.
-- Guía `docs/guia-modelos.md` para entrenar y publicar el modelo.
+### Agregado (Added)
+- **Aplicación Nativa iOS (`iosApp/`)**: Paridad funcional y visual 1:1 con Android usando SwiftUI, Canvas nativo, `PhotosPicker`, `UIGraphicsPDFRenderer` y `onnxruntime-objc:1.24.2`.
+- **Selector de 5 Niveles de Resolución de Cámara e IA (`AnalysisResolution`)**:
+  - `Baja (640 px · VGA)` para captura ultrarrápida de baja latencia.
+  - `Media (1024 px · HD)` para monitoreo rápido en campo.
+  - `Alta (2048 px · 2K)` como estándar recomendado de exportación.
+  - `Original del Equipo (Sensor Nativo 100 %)` sin reescalado previo.
+  - `Ultra 2×2 (Nativa + Tiling 2×2)` con 5 inferencias de `gulupa_lesiones.onnx` (`1280×1280` píxeles efectivos sobre la corteza).
+- **Documentación Científica y Fichas de Modelos ONNX**:
+  - [`models/MODELO_A_FRUTO.md`](./models/MODELO_A_FRUTO.md): Ficha técnica y métricas de `gulupa_fruto.onnx` (`IoU = 0.9813` INT8).
+  - [`models/MODELO_B_LESIONES.md`](./models/MODELO_B_LESIONES.md): Ficha técnica y métricas de `gulupa_lesiones.onnx` (`IoU = 0.9022` INT8).
+  - [`CITATION.cff`](./CITATION.cff): Metadatos oficiales de citación científica para GitHub.
 
-## [app-kotlin] - 2026-10-30
-- Se agrega `app/android/`: app nativa en Kotlin + Jetpack Compose con el diseño del prototipo del Reto 2
-  (splash, login, cámara, procesando, tipos de daño, severidad, resultado, detalles técnicos,
-  historial con CSV, alertas, perfil, acerca de nosotros). Español e inglés. Modo demostración.
-- Se agrega `app/backend/api.py`: ruta `/api/analyze` que devuelve JSON reutilizando sin cambios
-  `pipeline.py` y `segment_mildew.py` de PowderyVision7.
-
-## [proyecto-base] - 2026-10-13
-- Se agrega `proyecto-base/powderyvision7/` (copia del Space de Hugging Face PowderyVision7) como referencia para GulupaScaner.
-
-## [reto-02] - 2026-09-17
-- Canvas y prototipo.
-
-## [reto-01] - 2026-09-08
-- Propuesta de proyecto.
+### Mejorado (Changed)
+- **Identidad Visual y Animaciones**: `AnimatedBrandLockup`, `Wordmark` tipográfico (`Patrick Hand`) y `OrganicBlobs` sincronizados entre Android e iOS.
+- **Contraste en Tema Morado**: Tarjetas y formularios sobre fondo blanco de alto contraste e independencia del modo oscuro del sistema.
+- **Calidad de Código Python (PEP 8)**: Tipado estático (`typing`), docstrings y flag `--resolucion` en [`scripts/referencia_onnx.py`](./scripts/referencia_onnx.py), [`app/backend/api.py`](./app/backend/api.py) y [`app/backend/gulupa_pipeline.py`](./app/backend/gulupa_pipeline.py).
