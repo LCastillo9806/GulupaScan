@@ -16,6 +16,16 @@ import java.security.MessageDigest
 
 private val Context.dataStore by preferencesDataStore(name = "gulupascan")
 
+enum class AnalysisResolution(val id: String, val maxSidePx: Int, val multiTile: Boolean) {
+    MEDIUM("medium", 1024, false),   // Rápida (1024 px, 1 pasada)
+    HIGH("high", 2048, false),       // Alta / Estándar (2048 px, 1 pasada)
+    ULTRA("ultra", 4096, true);      // Ultra Alta (4096 px / Original + refinamiento multi-escala 2x2)
+
+    companion object {
+        fun from(id: String?) = entries.firstOrNull { it.id == id } ?: HIGH
+    }
+}
+
 data class UserProfile(
     val name: String = "",
     val email: String = "",
@@ -31,6 +41,7 @@ data class AppSettings(
     val offlineMode: Boolean = true, // Por defecto inferencia local con ONNX
     val theme: AppTheme = AppTheme.GREEN,
     val language: AppLanguage = AppLanguage.SPANISH,
+    val resolution: AnalysisResolution = AnalysisResolution.HIGH,
 )
 
 /**
@@ -52,6 +63,7 @@ class SessionStore(private val context: Context) {
         val offline = booleanPreferencesKey("offline_mode")
         val theme = stringPreferencesKey("theme")
         val language = stringPreferencesKey("language")
+        val resolution = stringPreferencesKey("resolution")
     }
 
     val loggedIn: Flow<Boolean> = context.dataStore.data.map { it[K.loggedIn] ?: false }
@@ -65,6 +77,7 @@ class SessionStore(private val context: Context) {
             offlineMode = it[K.offline] ?: true,
             theme = AppTheme.from(it[K.theme]),
             language = AppLanguage.from(it[K.language]),
+            resolution = AnalysisResolution.from(it[K.resolution]),
         )
     }
 
@@ -76,6 +89,7 @@ class SessionStore(private val context: Context) {
             it[K.email] = email.trim().lowercase()
             it[K.pass] = hash(email.trim().lowercase(), password)
             it[K.loggedIn] = true
+            if (it[K.role] == null) it[K.role] = "Agricultor de gulupa"
         }
     }
 
@@ -104,6 +118,7 @@ class SessionStore(private val context: Context) {
         it[K.offline] = s.offlineMode
         it[K.theme] = s.theme.id
         it[K.language] = s.language.code
+        it[K.resolution] = s.resolution.id
     }
 
     suspend fun setTheme(t: AppTheme) = context.dataStore.edit { it[K.theme] = t.id }

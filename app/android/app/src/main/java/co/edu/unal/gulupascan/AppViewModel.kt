@@ -123,6 +123,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private suspend fun runAnalysis(id: String, jpeg: ByteArray, workDir: File, forceDemo: Boolean) {
         _scan.value = ScanState.Processing(File(workDir, "original.jpg").absolutePath)
         val s = session.settings.first()
+        onnxAnalyzer.resolution = s.resolution
         val analyzer = when {
             forceDemo || s.demoMode -> DemoAnalyzer()
             s.offlineMode -> onnxAnalyzer

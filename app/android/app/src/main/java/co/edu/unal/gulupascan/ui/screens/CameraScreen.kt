@@ -77,6 +77,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import co.edu.unal.gulupascan.R
+import co.edu.unal.gulupascan.data.AnalysisResolution
 import co.edu.unal.gulupascan.ui.components.GsTopBar
 import co.edu.unal.gulupascan.ui.components.PrimaryButton
 import co.edu.unal.gulupascan.ui.components.StepBadge
@@ -89,7 +90,12 @@ private const val FOCUS_HOLD_SECONDS = 5L
 private const val FOCUS_TIMEOUT_MS = 2000L
 
 @Composable
-fun CameraScreen(onGuide: () -> Unit, onImage: (Uri) -> Unit) {
+fun CameraScreen(
+    resolution: AnalysisResolution = AnalysisResolution.HIGH,
+    onResolutionChange: (AnalysisResolution) -> Unit = {},
+    onGuide: () -> Unit,
+    onImage: (Uri) -> Unit,
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -258,8 +264,36 @@ fun CameraScreen(onGuide: () -> Unit, onImage: (Uri) -> Unit) {
             }
         }
 
-        // Barra inferior oscura del mockup
-        Column(Modifier.fillMaxWidth().background(Color(0xFF111111)).padding(vertical = 14.dp)) {
+        // Barra inferior oscura con selector rápido de resolución (Media / Alta / Ultra Alta)
+        val isEn = context.resources.configuration.locales[0].language == "en"
+        Column(Modifier.fillMaxWidth().background(Color(0xFF111111)).padding(vertical = 12.dp)) {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                listOf(
+                    AnalysisResolution.MEDIUM to (if (isEn) "Medium · 1024px" else "Media · 1024px"),
+                    AnalysisResolution.HIGH to (if (isEn) "High · 2048px" else "Alta · 2048px"),
+                    AnalysisResolution.ULTRA to (if (isEn) "Ultra · 4K 2×2" else "Ultra · 4K 2×2"),
+                ).forEach { (res, label) ->
+                    val selected = resolution == res
+                    Text(
+                        label,
+                        color = if (selected) Color.Black else Color.White.copy(alpha = 0.85f),
+                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                        fontSize = 11.sp,
+                        modifier = Modifier
+                            .background(
+                                if (selected) Pulp else Color.White.copy(alpha = 0.14f),
+                                RoundedCornerShape(50),
+                            )
+                            .clickable { onResolutionChange(res) }
+                            .padding(horizontal = 11.dp, vertical = 4.dp),
+                    )
+                }
+            }
+            Spacer(Modifier.height(10.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 Text(stringResource(R.string.cam_photo), color = Pulp, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Spacer(Modifier.size(40.dp, 1.dp))
@@ -268,7 +302,7 @@ fun CameraScreen(onGuide: () -> Unit, onImage: (Uri) -> Unit) {
                     modifier = Modifier.clickable { openGallery() },
                 )
             }
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(12.dp))
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = 32.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,

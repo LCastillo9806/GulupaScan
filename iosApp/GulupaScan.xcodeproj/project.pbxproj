@@ -1,0 +1,419 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		04CACE5882F2D412303B080C /* word_gulupa.png in Resources */ = {isa = PBXBuildFile; fileRef = 841BE1FB32BCFD19BE0907F4 /* word_gulupa.png */; };
+		17DF9914788053DCCE546DD9 /* ic_launcher_foreground.png in Resources */ = {isa = PBXBuildFile; fileRef = 561092FC9DD10A78A3276916 /* ic_launcher_foreground.png */; };
+		1CB2D5C3CFEC3155B03A9D5A /* onnxruntime in Frameworks */ = {isa = PBXBuildFile; productRef = EA636C687E5FA2EE7C2AF657 /* onnxruntime */; };
+		207F5FAF777F092604314F8C /* word_scan.png in Resources */ = {isa = PBXBuildFile; fileRef = 018F9D088DB1888D60B87486 /* word_scan.png */; };
+		27E087A00A6EE2D730D44986 /* logo_gulupa.png in Resources */ = {isa = PBXBuildFile; fileRef = 0322D98AFD8F72D415E4C087 /* logo_gulupa.png */; };
+		370B827E7037AFC2688A6AF9 /* gulupa_lesiones.onnx in Resources */ = {isa = PBXBuildFile; fileRef = 8B616FC47BC75EF57BC37081 /* gulupa_lesiones.onnx */; };
+		44A54220E3256A6EB82570A3 /* patrick_hand.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5C3305BA60826A57CF0C1D5A /* patrick_hand.ttf */; };
+		891299856B8D1DEA4467FAA2 /* gulupa_fruto.onnx in Resources */ = {isa = PBXBuildFile; fileRef = F1631099447C301460263644 /* gulupa_fruto.onnx */; };
+		A11111111111111111111111 /* team_jesus.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B11111111111111111111111 /* team_jesus.jpg */; };
+		A22222222222222222222222 /* team_luis.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B22222222222222222222222 /* team_luis.jpg */; };
+		A33333333333333333333333 /* team_daniel.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B33333333333333333333333 /* team_daniel.jpg */; };
+		C6D44F300D0225FAC9429306 /* Analysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31612F0799FD95BAE9C0647E /* Analysis.swift */; };
+		ECEEEED6467616C7B3F74536 /* GulupaScanApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31DD3791568265C7DC6D446 /* GulupaScanApp.swift */; };
+		F9B85AE595A485B86995BF42 /* GulupaAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 337B275CECD8364574BF6914 /* GulupaAnalyzer.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		018F9D088DB1888D60B87486 /* word_scan.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = word_scan.png; sourceTree = "<group>"; };
+		0322D98AFD8F72D415E4C087 /* logo_gulupa.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo_gulupa.png; sourceTree = "<group>"; };
+		31612F0799FD95BAE9C0647E /* Analysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analysis.swift; sourceTree = "<group>"; };
+		337B275CECD8364574BF6914 /* GulupaAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GulupaAnalyzer.swift; sourceTree = "<group>"; };
+		51F5C744E16AFE247C877724 /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
+		561092FC9DD10A78A3276916 /* ic_launcher_foreground.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_launcher_foreground.png; sourceTree = "<group>"; };
+		5C3305BA60826A57CF0C1D5A /* patrick_hand.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = patrick_hand.ttf; sourceTree = "<group>"; };
+		841BE1FB32BCFD19BE0907F4 /* word_gulupa.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = word_gulupa.png; sourceTree = "<group>"; };
+		8B616FC47BC75EF57BC37081 /* gulupa_lesiones.onnx */ = {isa = PBXFileReference; path = gulupa_lesiones.onnx; sourceTree = "<group>"; };
+		B11111111111111111111111 /* team_jesus.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = team_jesus.jpg; sourceTree = "<group>"; };
+		B22222222222222222222222 /* team_luis.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = team_luis.jpg; sourceTree = "<group>"; };
+		B33333333333333333333333 /* team_daniel.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = team_daniel.jpg; sourceTree = "<group>"; };
+		B2021F4E2CBBB2F852393755 /* GulupaScan.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = GulupaScan.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D31DD3791568265C7DC6D446 /* GulupaScanApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GulupaScanApp.swift; sourceTree = "<group>"; };
+		F1631099447C301460263644 /* gulupa_fruto.onnx */ = {isa = PBXFileReference; path = gulupa_fruto.onnx; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		554FD70673C13B642909352E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1CB2D5C3CFEC3155B03A9D5A /* onnxruntime in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		19D7F854896BCBB24EDC4E18 = {
+			isa = PBXGroup;
+			children = (
+				2B804B0313D1740883A25006 /* GulupaScan */,
+				2804B15BE324CFC6280ACEAA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2804B15BE324CFC6280ACEAA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B2021F4E2CBBB2F852393755 /* GulupaScan.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2B804B0313D1740883A25006 /* GulupaScan */ = {
+			isa = PBXGroup;
+			children = (
+				876E30F0EEC70AD6F8BCF220 /* Models */,
+				8D4E9C8229F8FF1045C411A5 /* Resources */,
+				C5FC4C51A1E9A7E0670AF441 /* Services */,
+				C6F5404E18549D431EFD1DA1 /* Views */,
+			);
+			path = GulupaScan;
+			sourceTree = "<group>";
+		};
+		876E30F0EEC70AD6F8BCF220 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				31612F0799FD95BAE9C0647E /* Analysis.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		8D4E9C8229F8FF1045C411A5 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				51F5C744E16AFE247C877724 /* .gitkeep */,
+				F1631099447C301460263644 /* gulupa_fruto.onnx */,
+				8B616FC47BC75EF57BC37081 /* gulupa_lesiones.onnx */,
+				561092FC9DD10A78A3276916 /* ic_launcher_foreground.png */,
+				0322D98AFD8F72D415E4C087 /* logo_gulupa.png */,
+				5C3305BA60826A57CF0C1D5A /* patrick_hand.ttf */,
+				B11111111111111111111111 /* team_jesus.jpg */,
+				B22222222222222222222222 /* team_luis.jpg */,
+				B33333333333333333333333 /* team_daniel.jpg */,
+				841BE1FB32BCFD19BE0907F4 /* word_gulupa.png */,
+				018F9D088DB1888D60B87486 /* word_scan.png */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		C5FC4C51A1E9A7E0670AF441 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				337B275CECD8364574BF6914 /* GulupaAnalyzer.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		C6F5404E18549D431EFD1DA1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D31DD3791568265C7DC6D446 /* GulupaScanApp.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5B67507C31C41ED01C222E72 /* GulupaScan */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 13756045810727386A9A8E89 /* Build configuration list for PBXNativeTarget "GulupaScan" */;
+			buildPhases = (
+				7029D66A5D19C3583D260995 /* Sources */,
+				78AD6E6DE0F8BBA886ADE3A6 /* Resources */,
+				554FD70673C13B642909352E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GulupaScan;
+			packageProductDependencies = (
+				EA636C687E5FA2EE7C2AF657 /* onnxruntime */,
+			);
+			productName = GulupaScan;
+			productReference = B2021F4E2CBBB2F852393755 /* GulupaScan.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0FAC0FFF9BB8290EE696F0EE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 9510A9DA933AD27566C305E8 /* Build configuration list for PBXProject "GulupaScan" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 19D7F854896BCBB24EDC4E18;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				26FC1EB69224BEAA1868D137 /* XCRemoteSwiftPackageReference "onnxruntime-swift-package-manager" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2804B15BE324CFC6280ACEAA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5B67507C31C41ED01C222E72 /* GulupaScan */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		78AD6E6DE0F8BBA886ADE3A6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				891299856B8D1DEA4467FAA2 /* gulupa_fruto.onnx in Resources */,
+				370B827E7037AFC2688A6AF9 /* gulupa_lesiones.onnx in Resources */,
+				17DF9914788053DCCE546DD9 /* ic_launcher_foreground.png in Resources */,
+				27E087A00A6EE2D730D44986 /* logo_gulupa.png in Resources */,
+				44A54220E3256A6EB82570A3 /* patrick_hand.ttf in Resources */,
+				A11111111111111111111111 /* team_jesus.jpg in Resources */,
+				A22222222222222222222222 /* team_luis.jpg in Resources */,
+				A33333333333333333333333 /* team_daniel.jpg in Resources */,
+				04CACE5882F2D412303B080C /* word_gulupa.png in Resources */,
+				207F5FAF777F092604314F8C /* word_scan.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7029D66A5D19C3583D260995 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6D44F300D0225FAC9429306 /* Analysis.swift in Sources */,
+				F9B85AE595A485B86995BF42 /* GulupaAnalyzer.swift in Sources */,
+				ECEEEED6467616C7B3F74536 /* GulupaScanApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4F436F530C53B04EA40B821B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 3;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = GulupaScan/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.edu.unal.gulupascan;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6AF06516B543B495F9B5BA12 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 3;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = GulupaScan/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.edu.unal.gulupascan;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E60A22694654C4BB0C95E451 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		FF3E73F182A6AC3D8B2528D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		13756045810727386A9A8E89 /* Build configuration list for PBXNativeTarget "GulupaScan" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F436F530C53B04EA40B821B /* Debug */,
+				6AF06516B543B495F9B5BA12 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9510A9DA933AD27566C305E8 /* Build configuration list for PBXProject "GulupaScan" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF3E73F182A6AC3D8B2528D1 /* Debug */,
+				E60A22694654C4BB0C95E451 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		26FC1EB69224BEAA1868D137 /* XCRemoteSwiftPackageReference "onnxruntime-swift-package-manager" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/microsoft/onnxruntime-swift-package-manager";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.18.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		EA636C687E5FA2EE7C2AF657 /* onnxruntime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 26FC1EB69224BEAA1868D137 /* XCRemoteSwiftPackageReference "onnxruntime-swift-package-manager" */;
+			productName = onnxruntime;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 0FAC0FFF9BB8290EE696F0EE /* Project object */;
+}

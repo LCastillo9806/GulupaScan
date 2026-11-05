@@ -20,7 +20,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.FloatBuffer
-import java.util.Locale
 import kotlin.math.ceil
 import kotlin.math.exp
 import kotlin.math.floor
@@ -169,7 +168,10 @@ class ModeloSegmentacion(context: Context, archivo: String, private val lado: In
 /**
  * Analizador con modelos ONNX int8 ejecutados localmente en el dispositivo (sin internet).
  */
-class OnnxLocalAnalyzer(private val context: Context) : Analyzer, AutoCloseable {
+class OnnxLocalAnalyzer(
+    private val context: Context,
+    var resolution: AnalysisResolution = AnalysisResolution.HIGH,
+) : Analyzer, AutoCloseable {
 
     private var modeloFruto: ModeloSegmentacion? = null
     private var modeloLesiones: ModeloSegmentacion? = null
@@ -193,16 +195,48 @@ class OnnxLocalAnalyzer(private val context: Context) : Analyzer, AutoCloseable 
             ?: throw AnalysisException("No se pudo cargar la imagen para inferencia")
 
         val t0 = System.currentTimeMillis()
-        val foto = reducir(originalBmp, ConfigGulupa.LADO_MAXIMO_FOTO)
+        val foto = reducir(originalBmp, resolution.maxSidePx)
         val mFruto = getOrInitFruto()
         val (recorte, frutoOk, confFruto) = recortarFruto(mFruto, foto)
         val tFruto = System.currentTimeMillis() - t0
-        // Sin fruto localizado el Modelo B vería el fondo completo y su resultado no tendría validez.
         if (!frutoOk) throw NoFruitException()
 
         val t1 = System.currentTimeMillis()
         val mLesiones = getOrInitLesiones()
-        val (detecciones, lb) = mLesiones.predecir(recorte)
+        val (deteccionesBase, lb) = mLesiones.predecir(recorte)
+        val detecciones = deteccionesBase.toMutableList()
+
+        // En modo Ultra Alta (4096px + multiTile), además de la inferencia global 640x640,
+        // ejecutamos 4 cuadrantes superpuestos (equivalente a 1280x1280 efectivo sobre el fruto)
+        // para captar micro-lesiones sin necesidad de reentrenar los modelos ONNX.
+        if (resolution.multiTile && max(recorte.width, recorte.height) >= 720) {
+            val cw = recorte.width
+            val ch = recorte.height
+            val tw = (cw * 0.60f).roundToInt().coerceAtLeast(320)
+            val th = (ch * 0.60f).roundToInt().coerceAtLeast(320)
+            val offsets = listOf(
+                0 to 0,
+                max(0, cw - tw) to 0,
+                0 to max(0, ch - th),
+                max(0, cw - tw) to max(0, ch - th),
+            )
+            for ((ox, oy) in offsets) {
+                val tileBmp = Bitmap.createBitmap(recorte, ox, oy, min(tw, cw - ox), min(th, ch - oy))
+                val (tileDets, tileLb) = mLesiones.predecir(tileBmp)
+                for (td in tileDets) {
+                    if (td.clase == ConfigGulupa.ID_FRUTO) continue
+                    val mappedMask = BooleanArray(lb.lado * lb.lado)
+                    for (ty in 0 until tileBmp.height) {
+                        for (tx in 0 until tileBmp.width) {
+                            if (td.mascara[tileLb.indice(tx, ty)]) {
+                                mappedMask[lb.indice(ox + tx, oy + ty)] = true
+                            }
+                        }
+                    }
+                    detecciones.add(td.copy(mascara = mappedMask))
+                }
+            }
+        }
         val tLesiones = System.currentTimeMillis() - t1
 
         // Calcular severidades
@@ -222,7 +256,6 @@ class OnnxLocalAnalyzer(private val context: Context) : Analyzer, AutoCloseable 
         for (i in 0 until n) if (unionLesiones[i]) mascaraFruto[i] = true
 
         val areaFruto = mascaraFruto.count { it }.toFloat()
-        // Sin área de fruto la severidad sería 0 % y la app reportaría "sano" sin haber visto el fruto.
         if (areaFruto == 0f) throw NoFruitException()
         fun pct(m: BooleanArray) = if (areaFruto > 0) 100.0 * m.indices.count { m[it] && mascaraFruto[it] } / areaFruto else 0.0
 
@@ -251,7 +284,6 @@ class OnnxLocalAnalyzer(private val context: Context) : Analyzer, AutoCloseable 
 
         FileOutputStream(cropFile).use { recorte.compress(Bitmap.CompressFormat.JPEG, 90, it) }
 
-        // Dibujar máscaras y contornos sobre el recorte para la visualización
         val overlayBitmap = dibujarResultado(recorte, detecciones, lb)
         FileOutputStream(resultFile).use { overlayBitmap.compress(Bitmap.CompressFormat.JPEG, 92, it) }
 
@@ -343,7 +375,6 @@ class OnnxLocalAnalyzer(private val context: Context) : Analyzer, AutoCloseable 
         val pixeles = IntArray(w * h)
         res.getPixels(pixeles, 0, w, 0, 0, w, h)
 
-        // Colores ARGB de overlay para cada clase
         val coloresAlpha = mapOf(
             1 to 0x88E53935.toInt(), // Scab (Rojo)
             2 to 0x888E24AA.toInt(), // Anthracnose (Morado oscuro)

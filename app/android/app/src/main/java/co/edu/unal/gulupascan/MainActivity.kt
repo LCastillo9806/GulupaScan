@@ -171,7 +171,11 @@ fun GulupaScanApp(vm: AppViewModel) {
                     AuthScreen(vm) { nav.navigate(Routes.SCAN) { popUpTo(Routes.AUTH) { inclusive = true } } }
                 }
                 composable(Routes.SCAN) {
-                    CameraScreen(onGuide = { nav.navigate(Routes.GUIDE) }) { uri -> vm.analyze(uri); nav.navigate(Routes.PROCESSING) }
+                    CameraScreen(
+                        resolution = settings.resolution,
+                        onResolutionChange = { vm.updateSettings(settings.copy(resolution = it)) },
+                        onGuide = { nav.navigate(Routes.GUIDE) },
+                    ) { uri -> vm.analyze(uri); nav.navigate(Routes.PROCESSING) }
                 }
                 composable(Routes.PROCESSING) {
                     ProcessingScreen(

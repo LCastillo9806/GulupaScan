@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -68,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import co.edu.unal.gulupascan.AppViewModel
 import co.edu.unal.gulupascan.BuildConfig
 import co.edu.unal.gulupascan.R
+import co.edu.unal.gulupascan.data.AnalysisResolution
 import co.edu.unal.gulupascan.data.AppSettings
 import co.edu.unal.gulupascan.data.UserProfile
 import co.edu.unal.gulupascan.domain.Analysis
@@ -77,23 +77,22 @@ import co.edu.unal.gulupascan.ui.components.ColorDot
 import co.edu.unal.gulupascan.ui.components.GsCard
 import co.edu.unal.gulupascan.ui.components.GsTopBar
 import co.edu.unal.gulupascan.ui.components.GulupaLogo
-import co.edu.unal.gulupascan.ui.components.InfoNote
+import co.edu.unal.gulupascan.ui.components.OrganicBlobs
 import co.edu.unal.gulupascan.ui.components.PathImage
 import co.edu.unal.gulupascan.ui.components.PrimaryButton
 import co.edu.unal.gulupascan.ui.components.pct
 import co.edu.unal.gulupascan.ui.components.shareContent
 import co.edu.unal.gulupascan.ui.theme.AppBg
 import co.edu.unal.gulupascan.ui.theme.AppLanguage
-import co.edu.unal.gulupascan.ui.theme.Brand
-import co.edu.unal.gulupascan.ui.theme.BrandDark
-import co.edu.unal.gulupascan.ui.theme.BrandSoft
 import co.edu.unal.gulupascan.ui.theme.AppTheme
 import co.edu.unal.gulupascan.ui.theme.BorderColor
-import co.edu.unal.gulupascan.ui.theme.brandOf
-import co.edu.unal.gulupascan.ui.components.OrganicBlobs
+import co.edu.unal.gulupascan.ui.theme.Brand
+import co.edu.unal.gulupascan.ui.theme.BrandDark
 import co.edu.unal.gulupascan.ui.theme.BrandMid
+import co.edu.unal.gulupascan.ui.theme.BrandSoft
 import co.edu.unal.gulupascan.ui.theme.TextSoft
 import co.edu.unal.gulupascan.ui.theme.WarnBg
+import co.edu.unal.gulupascan.ui.theme.brandOf
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
@@ -281,7 +280,7 @@ private fun MenuRow(icon: ImageVector, text: String, onClick: () -> Unit, chevro
 }
 
 // ---------------------------------------------------------------------------
-// Configuración de cuenta + Tema + Idioma + Modo Offline
+// Configuración de cuenta + Tema + Idioma + Modo Offline + Resolución
 // ---------------------------------------------------------------------------
 @Composable
 fun SettingsScreen(
@@ -300,6 +299,8 @@ fun SettingsScreen(
     var server by remember(settings.serverUrl) { mutableStateOf(settings.serverUrl) }
     var demo by remember(settings.demoMode) { mutableStateOf(settings.demoMode) }
     var offline by remember(settings.offlineMode) { mutableStateOf(settings.offlineMode) }
+    var resolution by remember(settings.resolution) { mutableStateOf(settings.resolution) }
+    val isEn = settings.language == AppLanguage.ENGLISH
 
     Scaffold(topBar = { GsTopBar(stringResource(R.string.set_title), onBack) }) { pad ->
         Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -319,6 +320,43 @@ fun SettingsScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 ThemeOption(AppTheme.GREEN, R.string.theme_green, settings.theme == AppTheme.GREEN, Modifier.weight(1f)) { onTheme(it) }
                 ThemeOption(AppTheme.PURPLE, R.string.theme_purple, settings.theme == AppTheme.PURPLE, Modifier.weight(1f)) { onTheme(it) }
+            }
+
+            Spacer(Modifier.height(4.dp))
+
+            // Selector de Resolución de Procesamiento (Media / Alta / Ultra Alta)
+            Text(
+                if (isEn) "Processing resolution" else "Resolución de procesamiento",
+                style = MaterialTheme.typography.titleSmall,
+                color = Brand,
+            )
+            Text(
+                if (isEn) "Higher resolution preserves micro-lesions when cropping the fruit, at the cost of extra processing time."
+                else "Mayor resolución conserva micro-lesiones al recortar el fruto, a cambio de un poco más de tiempo de cómputo.",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSoft,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ResolutionOption(
+                    title = if (isEn) "Medium" else "Media",
+                    sub = if (isEn) "Fast · 1024px" else "Rápida · 1024px",
+                    selected = resolution == AnalysisResolution.MEDIUM,
+                    modifier = Modifier.weight(1f),
+                ) { resolution = AnalysisResolution.MEDIUM }
+
+                ResolutionOption(
+                    title = if (isEn) "High" else "Alta",
+                    sub = if (isEn) "Std · 2048px" else "Estándar · 2048px",
+                    selected = resolution == AnalysisResolution.HIGH,
+                    modifier = Modifier.weight(1f),
+                ) { resolution = AnalysisResolution.HIGH }
+
+                ResolutionOption(
+                    title = if (isEn) "Ultra HD" else "Ultra Alta",
+                    sub = if (isEn) "4K + 2×2 Tiles" else "4K + 2×2 Tiles",
+                    selected = resolution == AnalysisResolution.ULTRA,
+                    modifier = Modifier.weight(1f),
+                ) { resolution = AnalysisResolution.ULTRA }
             }
 
             Spacer(Modifier.height(8.dp))
@@ -367,9 +405,30 @@ fun SettingsScreen(
             Spacer(Modifier.height(12.dp))
             PrimaryButton(stringResource(R.string.save), onClick = {
                 val updatedProfile = profile.copy(name = name, role = role, location = location, hectares = hectares, phone = phone)
-                val updatedSettings = settings.copy(serverUrl = server, demoMode = demo, offlineMode = offline)
+                val updatedSettings = settings.copy(serverUrl = server, demoMode = demo, offlineMode = offline, resolution = resolution)
                 onSave(updatedProfile, updatedSettings)
             })
+        }
+    }
+}
+
+@Composable
+private fun ResolutionOption(
+    title: String,
+    sub: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(14.dp),
+        color = if (selected) BrandSoft else MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(2.dp, if (selected) BrandDark else BorderColor),
+    ) {
+        Column(Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(title, style = MaterialTheme.typography.titleSmall, color = if (selected) BrandDark else TextSoft)
+            Text(sub, style = MaterialTheme.typography.bodySmall, color = if (selected) BrandDark else TextSoft, textAlign = TextAlign.Center)
         }
     }
 }
@@ -439,4 +498,3 @@ private fun Field(label: String, value: String, onValue: (String) -> Unit) {
         singleLine = true,
     )
 }
-

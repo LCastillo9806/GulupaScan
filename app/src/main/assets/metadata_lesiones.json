@@ -1,0 +1,126 @@
+{
+  "proyecto": "Detection and Classification of Epidermal Damage in Purple Passion Fruit",
+  "rol": "lesiones",
+  "descripcion": "Modelo B: segmenta fruto y lesiones sobre el recorte con fondo gris",
+  "fecha_exportacion": "2026-10-31T06:17:30",
+  "runtime_android": "com.microsoft.onnxruntime:onnxruntime-android",
+  "clases": {
+    "0": "fruit",
+    "1": "scab",
+    "2": "anthracnose",
+    "3": "oil_spot"
+  },
+  "entrada": {
+    "nombre": "images",
+    "forma": [
+      1,
+      3,
+      640,
+      640
+    ],
+    "tipo": "float32",
+    "canales": "RGB",
+    "normalizacion": "pixel / 255.0  (rango 0-1)",
+    "redimension": "letterbox a 640x640 conservando proporción, centrado, relleno (114,114,114)"
+  },
+  "salidas": {
+    "output0": {
+      "forma": [
+        1,
+        300,
+        38
+      ]
+    },
+    "output1": {
+      "forma": [
+        1,
+        32,
+        160,
+        160
+      ]
+    }
+  },
+  "formato_output0": [
+    "x1",
+    "y1",
+    "x2",
+    "y2",
+    "confianza",
+    "clase",
+    "coef_0",
+    "coef_1",
+    "coef_2",
+    "coef_3",
+    "coef_4",
+    "coef_5",
+    "coef_6",
+    "coef_7",
+    "coef_8",
+    "coef_9",
+    "coef_10",
+    "coef_11",
+    "coef_12",
+    "coef_13",
+    "coef_14",
+    "coef_15",
+    "coef_16",
+    "coef_17",
+    "coef_18",
+    "coef_19",
+    "coef_20",
+    "coef_21",
+    "coef_22",
+    "coef_23",
+    "coef_24",
+    "coef_25",
+    "coef_26",
+    "coef_27",
+    "coef_28",
+    "coef_29",
+    "coef_30",
+    "coef_31"
+  ],
+  "decodificacion_mascara": "mascara = sigmoide(coef[32] · prototipos[32, h·w]) → h×w; ampliar a 640×640 (bilineal); conservar solo dentro de la caja; umbral 0.5; quitar letterbox; escalar a la imagen original",
+  "umbrales": {
+    "confianza": 0.25,
+    "mascara": 0.5
+  },
+  "severidad": {
+    "formula": "100 × área(lesiones ∩ fruto) / área(fruto ∪ lesiones)",
+    "por_clase": "misma fórmula con la máscara de cada tipo de lesión",
+    "id_fruto": 0,
+    "umbral_sano_%": 0.5,
+    "clase_imagen": "Healthy si severidad total < umbral; si no, la lesión de mayor área",
+    "lesion_a_clase": {
+      "scab": "Scab",
+      "anthracnose": "Anthracnose",
+      "oil_spot": "Oil_spot"
+    }
+  },
+  "archivos": {
+    "fp32": {
+      "archivo": "gulupa_lesiones_yolo26n-seg.onnx",
+      "MB": 11.14
+    },
+    "int8": {
+      "archivo": "gulupa_lesiones_yolo26n-seg_int8.onnx",
+      "MB": 3.3
+    }
+  },
+  "verificacion_vs_pytorch": {
+    "fp32": {
+      "imagenes": 30,
+      "decodificacion_exacta_%": 100.0,
+      "iou_vs_pytorch_medio": 0.9029,
+      "iou_vs_pytorch_minimo": 0.1284,
+      "misma_deteccion_principal_%": 96.7
+    },
+    "int8": {
+      "imagenes": 30,
+      "decodificacion_exacta_%": 100.0,
+      "iou_vs_pytorch_medio": 0.9022,
+      "iou_vs_pytorch_minimo": 0.4413,
+      "misma_deteccion_principal_%": 100.0
+    }
+  }
+}

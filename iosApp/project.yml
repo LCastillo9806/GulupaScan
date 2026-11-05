@@ -1,0 +1,39 @@
+name: GulupaScan
+options:
+  bundleIdPrefix: co.edu.unal
+  deploymentTarget:
+    iOS: "16.0"
+packages:
+  onnxruntime:
+    url: https://github.com/microsoft/onnxruntime-swift-package-manager
+    from: 1.18.0
+targets:
+  GulupaScan:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: GulupaScan
+        excludes:
+          - Info.plist
+          - Resources
+    resources:
+      - path: GulupaScan/Resources
+    info:
+      path: GulupaScan/Info.plist
+      properties:
+        CFBundleDisplayName: GulupaScan
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        NSCameraUsageDescription: "GulupaScan necesita acceso a la cámara para fotografiar frutos de gulupa y detectar roña (Cladosporium)."
+        NSPhotoLibraryUsageDescription: "GulupaScan necesita acceso a tu fototeca para analizar imágenes de frutos de gulupa."
+        NSPhotoLibraryAddUsageDescription: "GulupaScan guarda las imágenes procesadas y reportes en tu fototeca."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: co.edu.unal.gulupascan
+        MARKETING_VERSION: 2.0.0
+        CURRENT_PROJECT_VERSION: 2
+    dependencies:
+      - package: onnxruntime
+        product: onnxruntime
