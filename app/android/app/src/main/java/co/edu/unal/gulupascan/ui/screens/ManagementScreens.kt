@@ -324,36 +324,51 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(4.dp))
 
-            // Selector de Resolución de Procesamiento (Media / Alta / Ultra Alta)
+            // Selector de Resolución de Captura y Procesamiento (Baja / Media / Alta / Original / Ultra 2x2)
             Text(
-                if (isEn) "Processing resolution" else "Resolución de procesamiento",
+                if (isEn) "Camera & AI processing resolution" else "Resolución de cámara y procesamiento IA",
                 style = MaterialTheme.typography.titleSmall,
                 color = Brand,
             )
             Text(
-                if (isEn) "Higher resolution preserves micro-lesions when cropping the fruit, at the cost of extra processing time."
-                else "Mayor resolución conserva micro-lesiones al recortar el fruto, a cambio de un poco más de tiempo de cómputo.",
+                if (isEn) "Choose from low VGA resolution (fastest) up to native camera sensor resolution or Ultra 2×2 multi-tile."
+                else "Elige desde resolución baja VGA (ultrarrápida) hasta la resolución original nativa del sensor de tu equipo o modo Ultra 2×2.",
                 style = MaterialTheme.typography.bodySmall,
                 color = TextSoft,
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ResolutionOption(
+                    title = if (isEn) "Low" else "Baja",
+                    sub = "VGA · 640px",
+                    selected = resolution == AnalysisResolution.LOW,
+                    modifier = Modifier.weight(1f),
+                ) { resolution = AnalysisResolution.LOW }
+
+                ResolutionOption(
                     title = if (isEn) "Medium" else "Media",
-                    sub = if (isEn) "Fast · 1024px" else "Rápida · 1024px",
+                    sub = "HD · 1024px",
                     selected = resolution == AnalysisResolution.MEDIUM,
                     modifier = Modifier.weight(1f),
                 ) { resolution = AnalysisResolution.MEDIUM }
 
                 ResolutionOption(
                     title = if (isEn) "High" else "Alta",
-                    sub = if (isEn) "Std · 2048px" else "Estándar · 2048px",
+                    sub = "2K · 2048px",
                     selected = resolution == AnalysisResolution.HIGH,
                     modifier = Modifier.weight(1f),
                 ) { resolution = AnalysisResolution.HIGH }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ResolutionOption(
+                    title = if (isEn) "Original Sensor" else "Original Equipo",
+                    sub = if (isEn) "Native 100% camera" else "Sensor nativo 100%",
+                    selected = resolution == AnalysisResolution.ORIGINAL,
+                    modifier = Modifier.weight(1f),
+                ) { resolution = AnalysisResolution.ORIGINAL }
 
                 ResolutionOption(
-                    title = if (isEn) "Ultra HD" else "Ultra Alta",
-                    sub = if (isEn) "4K + 2×2 Tiles" else "4K + 2×2 Tiles",
+                    title = "Ultra 2×2",
+                    sub = if (isEn) "Native + 1280px eff." else "Nativa + 1280px ef.",
                     selected = resolution == AnalysisResolution.ULTRA,
                     modifier = Modifier.weight(1f),
                 ) { resolution = AnalysisResolution.ULTRA }
@@ -400,6 +415,44 @@ fun SettingsScreen(
                     onCheckedChange = { demo = it },
                     colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = BrandDark),
                 )
+            }
+
+            // Resumen técnico de Modelos ONNX integrados y resolución activa
+            GsCard(color = BrandSoft) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        if (isEn) "Bundled ONNX Models & Active Pipeline" else "Modelos ONNX integrados y pipeline activo",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = BrandDark,
+                    )
+                    val capDesc = when (resolution) {
+                        AnalysisResolution.LOW -> if (isEn) "Low VGA (640 px)" else "Baja VGA (640 px)"
+                        AnalysisResolution.MEDIUM -> if (isEn) "Medium HD (1024 px)" else "Media HD (1024 px)"
+                        AnalysisResolution.HIGH -> if (isEn) "High 2K (2048 px)" else "Alta 2K (2048 px)"
+                        AnalysisResolution.ORIGINAL -> if (isEn) "Native Camera Sensor (100%)" else "Original del Sensor (100%)"
+                        AnalysisResolution.ULTRA -> if (isEn) "Native + 2×2 Tiles (4K)" else "Original + 2×2 Tiles (4K)"
+                    }
+                    Text(
+                        if (isEn) "• Camera / Photo input: $capDesc"
+                        else "• Entrada de cámara / foto: $capDesc",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Text(
+                        if (isEn) "• Stage A (Fruit locator): gulupa_fruto.onnx (Tensor 480×480 INT8 · IoU 98.1%)"
+                        else "• Etapa A (Localizador fruto): gulupa_fruto.onnx (Tensor 480×480 INT8 · IoU 98.1%)",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Text(
+                        if (resolution.multiTile) {
+                            if (isEn) "• Stage B (Lesions): gulupa_lesiones.onnx (640×640 × 5 passes = 1280×1280 effective)"
+                            else "• Etapa B (Lesiones): gulupa_lesiones.onnx (640×640 × 5 vistas = 1280×1280 efectivo)"
+                        } else {
+                            if (isEn) "• Stage B (Lesions on cropped fruit): gulupa_lesiones.onnx (Tensor 640×640 INT8 · IoU 90.2%)"
+                            else "• Etapa B (Lesiones sobre fruto recortado): gulupa_lesiones.onnx (Tensor 640×640 INT8 · IoU 90.2%)"
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
             }
 
             Spacer(Modifier.height(12.dp))

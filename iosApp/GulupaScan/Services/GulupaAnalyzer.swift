@@ -705,6 +705,7 @@ final class GulupaAnalyzer {
     }
 
     private func resizeMaxSide(_ image: UIImage, maxSide: CGFloat) -> UIImage {
+        if maxSide <= 0 { return image } // Modo Original del equipo: conserva resolución nativa del sensor
         let w = image.size.width
         let h = image.size.height
         let longest = max(w, h)

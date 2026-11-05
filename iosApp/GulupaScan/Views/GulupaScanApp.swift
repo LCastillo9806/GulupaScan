@@ -936,25 +936,28 @@ struct CameraCaptureScreen: View {
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .shadow(color: .black.opacity(0.12), radius: 6, y: 3)
 
-                    // Selector rápido de resolución de entrada (Media 1024 / Alta 2048 / Ultra 4096 + 2×2)
+                    // Selector rápido de resolución de entrada (Baja 640 / Media 1024 / Alta 2048 / Original / Ultra 2×2)
                     VStack(spacing: 6) {
-                        HStack(spacing: 8) {
-                            ForEach(AnalysisResolution.allCases, id: \.self) { res in
-                                let isSel = vm.settings.resolution == res
-                                Button {
-                                    vm.settings.resolution = res
-                                } label: {
-                                    Text(res.title(vm.lang))
-                                        .font(.caption2.weight(isSel ? .bold : .semibold))
-                                        .foregroundStyle(isSel ? .white : b.main)
-                                        .padding(.horizontal, 11)
-                                        .padding(.vertical, 6)
-                                        .background(isSel ? b.dark : Color.white)
-                                        .clipShape(Capsule())
-                                        .overlay(Capsule().stroke(isSel ? b.dark : b.border, lineWidth: 1))
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 6) {
+                                ForEach(AnalysisResolution.allCases, id: \.self) { res in
+                                    let isSel = vm.settings.resolution == res
+                                    Button {
+                                        vm.settings.resolution = res
+                                    } label: {
+                                        Text(res.title(vm.lang))
+                                            .font(.caption2.weight(isSel ? .bold : .semibold))
+                                            .foregroundStyle(isSel ? .white : b.main)
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 6)
+                                            .background(isSel ? b.dark : Color.white)
+                                            .clipShape(Capsule())
+                                            .overlay(Capsule().stroke(isSel ? b.dark : b.border, lineWidth: 1))
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
+                            .padding(.horizontal, 4)
                         }
                         Text(vm.settings.resolution.subtitle(vm.lang))
                             .font(.caption2)
@@ -2968,9 +2971,22 @@ struct SettingsScreen: View {
                     TextField(vm.t("Municipio", "Municipality"), text: $vm.profile.municipality)
                 }
 
-                Section(vm.t("Modelos ONNX integrados", "Bundled ONNX models")) {
-                    LabeledContent(vm.t("Etapa A (Fruto)", "Stage A (Fruit)"), value: "gulupa_fruto.onnx (480×480)")
-                    LabeledContent(vm.t("Etapa B (Lesiones)", "Stage B (Lesions)"), value: "gulupa_lesiones.onnx (640×640)")
+                Section(vm.t("Modelos ONNX integrados y resolución activa", "Bundled ONNX models & active resolution")) {
+                    LabeledContent(
+                        vm.t("Entrada de cámara", "Camera input"),
+                        value: "\(vm.settings.resolution.title(vm.lang)) (\(vm.settings.resolution.subtitle(vm.lang)))"
+                    )
+                    LabeledContent(
+                        vm.t("Etapa A (Fruto)", "Stage A (Fruit)"),
+                        value: "gulupa_fruto.onnx (Tensor 480×480 INT8)"
+                    )
+                    LabeledContent(
+                        vm.t("Etapa B (Lesiones)", "Stage B (Lesions)"),
+                        value: vm.settings.resolution.multiTile
+                            ? "gulupa_lesiones.onnx (640×640 × 5 = 1280×1280 ef.)"
+                            : "gulupa_lesiones.onnx (Tensor 640×640 INT8)"
+                    )
+                    LabeledContent(vm.t("Precisión INT8 (IoU)", "INT8 Accuracy (IoU)"), value: "98.1% (A) · 90.2% (B)")
                     LabeledContent(vm.t("Versión", "Version"), value: "0.3.0")
                 }
             }

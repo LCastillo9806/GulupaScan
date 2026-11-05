@@ -118,15 +118,35 @@ fun CameraScreen(
     var tapCount by remember { mutableIntStateOf(0) }
 
     val previewView = remember { PreviewView(context).apply { scaleType = PreviewView.ScaleType.FILL_CENTER } }
-    // Captura a la máxima resolución del sensor y con todo el procesado de imagen de la cámara.
-    val imageCapture = remember {
+    // Ajusta la resolución de captura de CameraX según el modo elegido (Baja 640p, Media 1024p, Alta 2048p, Original del sensor o Ultra).
+    val imageCapture = remember(resolution) {
+        val resStrategy = when (resolution) {
+            AnalysisResolution.LOW -> ResolutionStrategy(
+                android.util.Size(480, 640),
+                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
+            )
+            AnalysisResolution.MEDIUM -> ResolutionStrategy(
+                android.util.Size(768, 1024),
+                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
+            )
+            AnalysisResolution.HIGH -> ResolutionStrategy(
+                android.util.Size(1536, 2048),
+                ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
+            )
+            AnalysisResolution.ORIGINAL, AnalysisResolution.ULTRA -> ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY
+        }
+        val captureMode = if (resolution == AnalysisResolution.LOW) {
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+        } else {
+            ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
+        }
         ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+            .setCaptureMode(captureMode)
             .setJpegQuality(JPEG_QUALITY)
             .setResolutionSelector(
                 ResolutionSelector.Builder()
                     .setAspectRatioStrategy(AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY)
-                    .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                    .setResolutionStrategy(resStrategy)
                     .build(),
             )
             .build()
@@ -134,8 +154,8 @@ fun CameraScreen(
 
     LaunchedEffect(Unit) { if (!hasPermission) permissionLauncher.launch(Manifest.permission.CAMERA) }
 
-    // (Re)vincula la cámara cuando cambia el lente o el permiso.
-    DisposableEffect(hasPermission, backCamera) {
+    // (Re)vincula la cámara cuando cambia el lente, el permiso o la resolución del sensor.
+    DisposableEffect(hasPermission, backCamera, imageCapture) {
         var provider: ProcessCameraProvider? = null
         if (hasPermission) {
             val future = ProcessCameraProvider.getInstance(context)
@@ -264,32 +284,34 @@ fun CameraScreen(
             }
         }
 
-        // Barra inferior oscura con selector rápido de resolución (Media / Alta / Ultra Alta)
+        // Barra inferior oscura con selector rápido de resolución (Baja 640p / Media 1024p / Alta 2048p / Original / Ultra 2x2)
         val isEn = context.resources.configuration.locales[0].language == "en"
         Column(Modifier.fillMaxWidth().background(Color(0xFF111111)).padding(vertical = 12.dp)) {
             Row(
-                Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 listOf(
-                    AnalysisResolution.MEDIUM to (if (isEn) "Medium · 1024px" else "Media · 1024px"),
-                    AnalysisResolution.HIGH to (if (isEn) "High · 2048px" else "Alta · 2048px"),
-                    AnalysisResolution.ULTRA to (if (isEn) "Ultra · 4K 2×2" else "Ultra · 4K 2×2"),
+                    AnalysisResolution.LOW to (if (isEn) "Low·640p" else "Baja·640p"),
+                    AnalysisResolution.MEDIUM to (if (isEn) "Med·1024p" else "Media·1024p"),
+                    AnalysisResolution.HIGH to (if (isEn) "High·2K" else "Alta·2K"),
+                    AnalysisResolution.ORIGINAL to (if (isEn) "Original" else "Original"),
+                    AnalysisResolution.ULTRA to (if (isEn) "Ultra·2×2" else "Ultra·2×2"),
                 ).forEach { (res, label) ->
                     val selected = resolution == res
                     Text(
                         label,
                         color = if (selected) Color.Black else Color.White.copy(alpha = 0.85f),
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                        fontSize = 11.sp,
+                        fontSize = 10.sp,
                         modifier = Modifier
                             .background(
                                 if (selected) Pulp else Color.White.copy(alpha = 0.14f),
                                 RoundedCornerShape(50),
                             )
                             .clickable { onResolutionChange(res) }
-                            .padding(horizontal = 11.dp, vertical = 4.dp),
+                            .padding(horizontal = 9.dp, vertical = 4.dp),
                     )
                 }
             }

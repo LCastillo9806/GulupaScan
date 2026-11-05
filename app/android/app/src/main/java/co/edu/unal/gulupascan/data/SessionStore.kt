@@ -17,9 +17,11 @@ import java.security.MessageDigest
 private val Context.dataStore by preferencesDataStore(name = "gulupascan")
 
 enum class AnalysisResolution(val id: String, val maxSidePx: Int, val multiTile: Boolean) {
-    MEDIUM("medium", 1024, false),   // Rápida (1024 px, 1 pasada)
-    HIGH("high", 2048, false),       // Alta / Estándar (2048 px, 1 pasada)
-    ULTRA("ultra", 4096, true);      // Ultra Alta (4096 px / Original + refinamiento multi-escala 2x2)
+    LOW("low", 640, false),          // Baja / VGA (640 px, ultrarrápida para equipos básicos)
+    MEDIUM("medium", 1024, false),   // Media / HD (1024 px, rápida 1 pasada)
+    HIGH("high", 2048, false),       // Alta / 2K (2048 px, estándar recomendado)
+    ORIGINAL("original", 0, false),  // Original del equipo (resolución nativa del sensor sin reescalar)
+    ULTRA("ultra", 4096, true);      // Ultra Alta (Original / 4K + refinamiento multi-escala 2x2)
 
     companion object {
         fun from(id: String?) = entries.firstOrNull { it.id == id } ?: HIGH
