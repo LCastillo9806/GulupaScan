@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🟣 GulupaScan v0.3.0
+# 🟣 GulupaScan v0.3.0 
 ### Detección y Cuantificación de Severidad de Daños Epidérmicos en Gulupa (*Passiflora edulis* Sims) mediante Modelos ONNX `YOLO26n-seg` en Dos Etapas (Android & iOS)
 
 [![Release](https://img.shields.io/badge/version-0.3.0-5D2741?style=for-the-badge)](https://github.com/jf-floresriera/gulupascaner/releases)
