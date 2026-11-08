@@ -27,6 +27,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -287,8 +289,9 @@ fun CameraScreen(
         // Barra inferior oscura con selector rápido de resolución (Baja 640p / Media 1024p / Alta 2048p / Original / Ultra 2x2)
         val isEn = context.resources.configuration.locales[0].language == "en"
         Column(Modifier.fillMaxWidth().background(Color(0xFF111111)).padding(vertical = 12.dp)) {
+            // Desplazable para que en pantallas angostas ningún botón se parta en varias líneas
             Row(
-                Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -305,6 +308,8 @@ fun CameraScreen(
                         color = if (selected) Color.Black else Color.White.copy(alpha = 0.85f),
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
                         fontSize = 10.sp,
+                        maxLines = 1,
+                        softWrap = false,
                         modifier = Modifier
                             .background(
                                 if (selected) Pulp else Color.White.copy(alpha = 0.14f),

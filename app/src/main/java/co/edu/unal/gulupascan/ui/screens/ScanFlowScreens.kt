@@ -472,7 +472,8 @@ fun TechDetailsScreen(a: Analysis, onBack: () -> Unit) {
                         a.source.contains("onnx") -> "YOLO26n-seg On-Device (ONNX CPU)"
                         else -> stringResource(R.string.tech_remote)
                     })
-                    a.modelClass?.let { Metric(stringResource(R.string.tech_class), it) }
+                    // El modelo entrega la clase en inglés ("Scab"); se muestra el nombre del catálogo en el idioma de la app
+                    a.modelClass?.let { Metric(stringResource(R.string.tech_class), damageName(it.lowercase())) }
                     Metric(stringResource(R.string.tech_conf), "${(a.modelConfidence * 100).toInt()} %")
                     if (a.leafConfidence > 0) Metric(stringResource(R.string.tech_leaf_conf), "${(a.leafConfidence * 100).toInt()} %")
 
@@ -509,8 +510,15 @@ private fun Legend(color: Color, text: String) {
 @Composable
 private fun Metric(label: String, value: String) {
     Row(Modifier.fillMaxWidth()) {
+        // El valor comparte el ancho con la etiqueta para que ninguna de las dos se parta letra por letra
         Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = TextSoft)
-        Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.End)
+        Text(
+            value,
+            Modifier.padding(start = 12.dp).weight(1.3f, fill = false),
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.End,
+        )
     }
 }
 
