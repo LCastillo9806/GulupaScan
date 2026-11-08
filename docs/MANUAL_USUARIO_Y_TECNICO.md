@@ -1,7 +1,8 @@
 # 🌿 Manual Técnico y de Usuario — GulupaScan (Android & iOS)
 
-> **Documento Oficial de Divulgación y Operación Técnica**  
-> **Universidad Nacional de Colombia (Sede Medellín) & Colaboradores**  
+> **Documento de Construcción Técnica y Operación de la Herramienta**  
+> **Resultado de Tesis de Maestría — Autor y desarrollador principal: Luis Alberto Castillo Sanabria**  
+> **Con el apoyo de la Universidad Nacional de Colombia y del Laboratorio de Agrocomputación y Análisis Epidemiológico, Facultad de Ciencias Agrarias**  
 > **Versión de la Aplicación:** `0.3.0` (Android) / `2.0.0` (iOS)  
 > **Pipeline de Inteligencia Artificial:** `YOLOv8n-seg` en cascada (2 etapas ONNX)  
 
@@ -10,7 +11,7 @@
 ## 📑 Tabla de Contenidos
 
 1. [Resumen Ejecutivo y Propósito](#1-resumen-ejecutivo-y-propósito)
-2. [Estado en GitHub e Integridad del Repositorio](#2-estado-en-github-e-integridad-del-repositorio)
+2. [Autoría, Equipo y Apoyo Institucional](#2-autoría-equipo-y-apoyo-institucional)
 3. [Flujo de Trabajo Paso a Paso con la Muestra Real](#3-flujo-de-trabajo-paso-a-paso-con-la-muestra-real)
 4. [Pipeline de Inteligencia Artificial (ONNX en 2 Etapas)](#4-pipeline-de-inteligencia-artificial-onnx-en-2-etapas)
 5. [Impacto de las 5 Resoluciones de Entrada](#5-impacto-de-las-5-resoluciones-de-entrada)
@@ -40,20 +41,26 @@ A diferencia de las aplicaciones convencionales que dependen obligatoriamente de
 
 ---
 
-## 2. Estado en GitHub e Integridad del Repositorio
+## 2. Autoría, Equipo y Apoyo Institucional
 
-> [!NOTE]
-> **Respuesta a la consulta sobre GitHub:**  
-> **No tienes que modificar nada adicional en GitHub**. El repositorio remoto `https://github.com/jf-floresriera/gulupascaner` se encuentra en un estado impecable:
-> - Todas las ramas de características fueron integradas a `main` sin conflictos.
-> - Todos los flujos de integración continua en **GitHub Actions** (`Compilar APK Android con Gradle`) finalizaron en **éxito (`success`)**.
-> - Se preservaron íntegros los submódulos, la documentación del proyecto y los modelos rastreados mediante **Git LFS** (`.onnx` de 3.2 MB).
+**GulupaScan** es un resultado de la **tesis de maestría de Luis Alberto Castillo Sanabria**, quien es el **autor principal y desarrollador principal de la herramienta**: diseño de la aplicación, implementación en Android e iOS, integración de los modelos ONNX y documentación técnica.
 
-### Insignias (*Achievements*) Ganadas en GitHub:
-1. 🦈 **Pull Shark (x2 - Nivel Plata):** Desbloqueada al fusionar **17 Pull Requests** en el repositorio.
-2. ⚡ **Quickdraw:** Desbloqueada al abrir y cerrar issues/PRs en menos de 5 minutos con resolución automatizada.
-3. 🎯 **YOLO:** Desbloqueada al fusionar cambios directos verificados por pruebas continuas.
-4. 👥 **Pair Extraordinaire:** Desbloqueada gracias a los metadatos de autoría compartida (`Co-authored-by`) para los investigadores y desarrolladores de la Universidad Nacional.
+### Equipo
+| Integrante | Rol en el proyecto |
+|:---|:---|
+| **Luis Alberto Castillo Sanabria** | Autor principal y desarrollador principal (tesis de maestría) |
+| **Jesús Enrique Flores-Riera** | Coautor |
+| **Joaquín Guillermo Ramírez-Gil** | Coautor |
+| **Diego Humberto Lavado González** | Coautor |
+| **Daniel Felipe Ahumada Hernández** | Coautor |
+
+Todos los integrantes del equipo son estudiantes de la **Universidad Nacional de Colombia (UNAL)**.
+
+### Apoyo Institucional
+El proyecto contó con el apoyo de la **Universidad Nacional de Colombia** y del **Laboratorio de Agrocomputación y Análisis Epidemiológico** de la **Facultad de Ciencias Agrarias**.
+
+### Repositorio
+Código fuente, modelos ONNX (gestionados con **Git LFS**) y esta documentación: <https://github.com/LCastillo9806/GulupaScan>
 
 ---
 
@@ -221,15 +228,15 @@ Proporciona instrucciones ilustradas al operario para asegurar fotografías homo
 ---
 
 ### Módulo 12: Información Técnica del Equipo y Créditos
-Documenta la autoría científica y tecnológica del proyecto en la Universidad Nacional de Colombia, detallando las publicaciones, versiones de software y directores de investigación.
+Presenta los créditos de la herramienta: GulupaScan es resultado de la tesis de maestría de **Luis Alberto Castillo Sanabria** (autor y desarrollador principal), con la participación de los coautores, todos estudiantes de la Universidad Nacional de Colombia, y con el apoyo del **Laboratorio de Agrocomputación y Análisis Epidemiológico** de la Facultad de Ciencias Agrarias. También muestra la versión del software. Ver la [sección 2](#2-autoría-equipo-y-apoyo-institucional).
 
 ---
 
 ## 7. Arquitectura de Software y Código Fuente
 
 ### Diagrama de Módulos (Android)
-- **`MainActivity.kt`**: Enrutador central Jetpack Compose Navigation, temas y localización en tiempo real con [`LocalizedContext`](file:///Users/joaquinguillermoramirez-gil/AndroidStudioProjects/MyApplication/app/src/main/java/co/edu/unal/gulupascan/MainActivity.kt).
-- **`CameraScreen.kt`**: Integración con CameraX 1.4, gestión de ciclo de vida del sensor y selector rápido de resolución [`AnalysisResolution`](file:///Users/joaquinguillermoramirez-gil/AndroidStudioProjects/MyApplication/app/src/main/java/co/edu/unal/gulupascan/ui/screens/CameraScreen.kt).
+- **`MainActivity.kt`**: Enrutador central Jetpack Compose Navigation, temas y localización en tiempo real con [`LocalizedContext`](../app/src/main/java/co/edu/unal/gulupascan/MainActivity.kt).
+- **`CameraScreen.kt`**: Integración con CameraX 1.4, gestión de ciclo de vida del sensor y selector rápido de resolución [`AnalysisResolution`](../app/src/main/java/co/edu/unal/gulupascan/ui/screens/CameraScreen.kt).
 - **`OnnxAnalyzer.kt`**: Pipeline de visión artificial con tensores ONNX Runtime, decodificación de matrices de prototipos y generación de máscaras de segmentación.
 - **`PdfReportGenerator.kt`**: Generador vectorial de informes técnicos fitosanitarios listos para imprimir o remitir al ICA / exportadora.
 

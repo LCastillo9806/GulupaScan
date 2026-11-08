@@ -37,8 +37,9 @@ h1, h2, h3, h4 {
 <body>
 <h1 style="color:#1b4332; border-bottom:3px solid #2d6a4f; padding-bottom:8px; margin-top:36px; font-size:26px;">🌿 Manual Técnico y de Usuario — GulupaScan (Android & iOS)</h1>
 <br>
-<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Documento Oficial de Divulgación y Operación Técnica</strong></blockquote>
-<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Universidad Nacional de Colombia (Sede Medellín) & Colaboradores</strong></blockquote>
+<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Documento de Construcción Técnica y Operación de la Herramienta</strong></blockquote>
+<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Resultado de Tesis de Maestría — Autor y desarrollador principal: Luis Alberto Castillo Sanabria</strong></blockquote>
+<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Con el apoyo de la Universidad Nacional de Colombia y del Laboratorio de Agrocomputación y Análisis Epidemiológico, Facultad de Ciencias Agrarias</strong></blockquote>
 <blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Versión de la Aplicación:</strong> <code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">0.3.0</code> (Android) / <code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">2.0.0</code> (iOS)</blockquote>
 <blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Pipeline de Inteligencia Artificial:</strong> <code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">YOLOv8n-seg</code> en cascada (2 etapas ONNX)</blockquote>
 <br>
@@ -46,26 +47,26 @@ h1, h2, h3, h4 {
 <br>
 <h2 style="color:#2d6a4f; border-bottom:1.5px solid #b7e4c7; padding-bottom:6px; margin-top:30px; font-size:20px; page-break-after:avoid;">📑 Tabla de Contenidos</h2>
 <br>
-<li style="margin-bottom:6px; line-height:1.5;">[Resumen Ejecutivo y Propósito](#1-resumen-ejecutivo-y-propósito)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Estado en GitHub e Integridad del Repositorio](#2-estado-en-github-e-integridad-del-repositorio)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Flujo de Trabajo Paso a Paso con la Muestra Real](#3-flujo-de-trabajo-paso-a-paso-con-la-muestra-real)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Pipeline de Inteligencia Artificial (ONNX en 2 Etapas)](#4-pipeline-de-inteligencia-artificial-onnx-en-2-etapas)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Impacto de las 5 Resoluciones de Entrada](#5-impacto-de-las-5-resoluciones-de-entrada)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Pantallazos y Funcionamiento Módulo por Módulo (Android & iOS)](#6-pantallazos-y-funcionamiento-módulo-por-módulo-android--ios)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 1: Autenticación y Perfil del Productor](#módulo-1-autenticación-y-perfil-del-productor)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 2: Cámara y Selector Dinámico de 5 Resoluciones](#módulo-2-cámara-y-selector-dinámico-de-5-resoluciones)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 3: Procesamiento en el Teléfono (ONNX Offline)](#módulo-3-procesamiento-en-el-teléfono-onnx-offline)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 4: Tipos de Daño Detectados](#módulo-4-tipos-de-daño-detectados)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 5: Detalle del Daño y Escala Visual de Severidad 1–10](#módulo-5-detalle-del-daño-y-escala-visual-de-severidad-110)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 6: Resultado Final, Exportación PDF y Compartir](#módulo-6-resultado-final-exportación-pdf-y-compartir)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 7: Métricas Técnicas y Diagnóstico del Modelo](#módulo-7-métricas-técnicas-y-diagnóstico-del-modelo)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 8: Historial Local de Diagnósticos](#módulo-8-historial-local-de-diagnósticos)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 9: Alertas Fitosanitarias y Umbrales Críticos](#módulo-9-alertas-fitosanitarias-y-umbrales-críticos)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 10: Perfil, Configuración y Personalización](#módulo-10-perfil-configuración-y-personalización)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 11: Guía de Toma de Fotografías](#módulo-11-guía-de-toma-de-fotografías)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Módulo 12: Información Técnica del Equipo y Créditos](#módulo-12-información-técnica-del-equipo-y-créditos)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Arquitectura de Software y Código Fuente](#7-arquitectura-de-software-y-código-fuente)</li>
-<li style="margin-bottom:6px; line-height:1.5;">[Instrucciones de Compilación y Ejecución](#8-instrucciones-de-compilación-y-ejecución)</li>
+<li style="margin-bottom:6px; line-height:1.5;">Resumen Ejecutivo y Propósito</li>
+<li style="margin-bottom:6px; line-height:1.5;">Autoría, Equipo y Apoyo Institucional</li>
+<li style="margin-bottom:6px; line-height:1.5;">Flujo de Trabajo Paso a Paso con la Muestra Real</li>
+<li style="margin-bottom:6px; line-height:1.5;">Pipeline de Inteligencia Artificial (ONNX en 2 Etapas)</li>
+<li style="margin-bottom:6px; line-height:1.5;">Impacto de las 5 Resoluciones de Entrada</li>
+<li style="margin-bottom:6px; line-height:1.5;">Pantallazos y Funcionamiento Módulo por Módulo (Android & iOS)</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 1: Autenticación y Perfil del Productor</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 2: Cámara y Selector Dinámico de 5 Resoluciones</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 3: Procesamiento en el Teléfono (ONNX Offline)</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 4: Tipos de Daño Detectados</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 5: Detalle del Daño y Escala Visual de Severidad 1–10</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 6: Resultado Final, Exportación PDF y Compartir</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 7: Métricas Técnicas y Diagnóstico del Modelo</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 8: Historial Local de Diagnósticos</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 9: Alertas Fitosanitarias y Umbrales Críticos</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 10: Perfil, Configuración y Personalización</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 11: Guía de Toma de Fotografías</li>
+<li style="margin-bottom:6px; line-height:1.5;">Módulo 12: Información Técnica del Equipo y Créditos</li>
+<li style="margin-bottom:6px; line-height:1.5;">Arquitectura de Software y Código Fuente</li>
+<li style="margin-bottom:6px; line-height:1.5;">Instrucciones de Compilación y Ejecución</li>
 <br>
 <hr style="border:none; border-top:1px solid #e0e0e0; margin:28px 0;">
 <br>
@@ -77,20 +78,45 @@ h1, h2, h3, h4 {
 <br>
 <hr style="border:none; border-top:1px solid #e0e0e0; margin:28px 0;">
 <br>
-<h2 style="color:#2d6a4f; border-bottom:1.5px solid #b7e4c7; padding-bottom:6px; margin-top:30px; font-size:20px; page-break-after:avoid;">2. Estado en GitHub e Integridad del Repositorio</h2>
+<h2 style="color:#2d6a4f; border-bottom:1.5px solid #b7e4c7; padding-bottom:6px; margin-top:30px; font-size:20px; page-break-after:avoid;">2. Autoría, Equipo y Apoyo Institucional</h2>
 <br>
-<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;">[!NOTE]</blockquote>
-<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Respuesta a la consulta sobre GitHub:</strong></blockquote>
-<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>No tienes que modificar nada adicional en GitHub</strong>. El repositorio remoto <code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">https://github.com/jf-floresriera/gulupascaner</code> se encuentra en un estado impecable:</blockquote>
-<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;">- Todas las ramas de características fueron integradas a <code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">main</code> sin conflictos.</blockquote>
-<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;">- Todos los flujos de integración continua en <strong>GitHub Actions</strong> (<code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">Compilar APK Android con Gradle</code>) finalizaron en <strong>éxito (<code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">success</code>)</strong>.</blockquote>
-<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;">- Se preservaron íntegros los submódulos, la documentación del proyecto y los modelos rastreados mediante <strong>Git LFS</strong> (<code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">.onnx</code> de 3.2 MB).</blockquote>
+<p style="line-height:1.65; color:#222; margin:10px 0;"><strong>GulupaScan</strong> es un resultado de la <strong>tesis de maestría de Luis Alberto Castillo Sanabria</strong>, quien es el <strong>autor principal y desarrollador principal de la herramienta</strong>: diseño de la aplicación, implementación en Android e iOS, integración de los modelos ONNX y documentación técnica.</p>
 <br>
-<h3 style="color:#386641; margin-top:22px; font-size:17px; page-break-after:avoid;">Insignias (*Achievements*) Ganadas en GitHub:</h3>
-<li style="margin-bottom:6px; line-height:1.5;">🦈 <strong>Pull Shark (x2 - Nivel Plata):</strong> Desbloqueada al fusionar <strong>17 Pull Requests</strong> en el repositorio.</li>
-<li style="margin-bottom:6px; line-height:1.5;">⚡ <strong>Quickdraw:</strong> Desbloqueada al abrir y cerrar issues/PRs en menos de 5 minutos con resolución automatizada.</li>
-<li style="margin-bottom:6px; line-height:1.5;">🎯 <strong>YOLO:</strong> Desbloqueada al fusionar cambios directos verificados por pruebas continuas.</li>
-<li style="margin-bottom:6px; line-height:1.5;">👥 <strong>Pair Extraordinaire:</strong> Desbloqueada gracias a los metadatos de autoría compartida (<code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">Co-authored-by</code>) para los investigadores y desarrolladores de la Universidad Nacional.</li>
+<h3 style="color:#386641; margin-top:22px; font-size:17px; page-break-after:avoid;">Equipo</h3>
+<table style="width:100%; border-collapse:collapse; margin:22px 0; font-size:14px; page-break-inside:avoid;">
+<thead><tr style="background:#1b4332; color:white;">
+<th style="border:1px solid #ccc; padding:10px 12px; text-align:center;">Integrante</th>
+<th style="border:1px solid #ccc; padding:10px 12px; text-align:center;">Rol en el proyecto</th>
+</tr></thead><tbody>
+<tr style="border-bottom:1px solid #ddd; background:#fafafa;">
+<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;"><strong>Luis Alberto Castillo Sanabria</strong></td>
+<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;">Autor principal y desarrollador principal (tesis de maestría)</td>
+</tr>
+<tr style="border-bottom:1px solid #ddd; background:#fafafa;">
+<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;"><strong>Jesús Enrique Flores-Riera</strong></td>
+<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;">Coautor</td>
+</tr>
+<tr style="border-bottom:1px solid #ddd; background:#fafafa;">
+<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;"><strong>Joaquín Guillermo Ramírez-Gil</strong></td>
+<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;">Coautor</td>
+</tr>
+<tr style="border-bottom:1px solid #ddd; background:#fafafa;">
+<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;"><strong>Diego Humberto Lavado González</strong></td>
+<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;">Coautor</td>
+</tr>
+<tr style="border-bottom:1px solid #ddd; background:#fafafa;">
+<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;"><strong>Daniel Felipe Ahumada Hernández</strong></td>
+<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;">Coautor</td>
+</tr>
+</tbody></table>
+<br>
+<p style="line-height:1.65; color:#222; margin:10px 0;">Todos los integrantes del equipo son estudiantes de la <strong>Universidad Nacional de Colombia (UNAL)</strong>.</p>
+<br>
+<h3 style="color:#386641; margin-top:22px; font-size:17px; page-break-after:avoid;">Apoyo Institucional</h3>
+<p style="line-height:1.65; color:#222; margin:10px 0;">El proyecto contó con el apoyo de la <strong>Universidad Nacional de Colombia</strong> y del <strong>Laboratorio de Agrocomputación y Análisis Epidemiológico</strong> de la <strong>Facultad de Ciencias Agrarias</strong>.</p>
+<br>
+<h3 style="color:#386641; margin-top:22px; font-size:17px; page-break-after:avoid;">Repositorio</h3>
+<p style="line-height:1.65; color:#222; margin:10px 0;">Código fuente, modelos ONNX (gestionados con <strong>Git LFS</strong>) y esta documentación: <a href="https://github.com/LCastillo9806/GulupaScan" style="color:#2d6a4f;">https://github.com/LCastillo9806/GulupaScan</a></p>
 <br>
 <hr style="border:none; border-top:1px solid #e0e0e0; margin:28px 0;">
 <br>
@@ -359,15 +385,15 @@ h1, h2, h3, h4 {
 <hr style="border:none; border-top:1px solid #e0e0e0; margin:28px 0;">
 <br>
 <h3 style="color:#386641; margin-top:22px; font-size:17px; page-break-after:avoid;">Módulo 12: Información Técnica del Equipo y Créditos</h3>
-<p style="line-height:1.65; color:#222; margin:10px 0;">Documenta la autoría científica y tecnológica del proyecto en la Universidad Nacional de Colombia, detallando las publicaciones, versiones de software y directores de investigación.</p>
+<p style="line-height:1.65; color:#222; margin:10px 0;">Presenta los créditos de la herramienta: GulupaScan es resultado de la tesis de maestría de <strong>Luis Alberto Castillo Sanabria</strong> (autor y desarrollador principal), con la participación de los coautores, todos estudiantes de la Universidad Nacional de Colombia, y con el apoyo del <strong>Laboratorio de Agrocomputación y Análisis Epidemiológico</strong> de la Facultad de Ciencias Agrarias. También muestra la versión del software. Ver la sección 2.</p>
 <br>
 <hr style="border:none; border-top:1px solid #e0e0e0; margin:28px 0;">
 <br>
 <h2 style="color:#2d6a4f; border-bottom:1.5px solid #b7e4c7; padding-bottom:6px; margin-top:30px; font-size:20px; page-break-after:avoid;">7. Arquitectura de Software y Código Fuente</h2>
 <br>
 <h3 style="color:#386641; margin-top:22px; font-size:17px; page-break-after:avoid;">Diagrama de Módulos (Android)</h3>
-<li style="margin-bottom:6px; line-height:1.5;"><strong><code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">MainActivity.kt</code></strong>: Enrutador central Jetpack Compose Navigation, temas y localización en tiempo real con [<code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">LocalizedContext</code>](file:///Users/joaquinguillermoramirez-gil/AndroidStudioProjects/MyApplication/app/src/main/java/co/edu/unal/gulupascan/MainActivity.kt).</li>
-<li style="margin-bottom:6px; line-height:1.5;"><strong><code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">CameraScreen.kt</code></strong>: Integración con CameraX 1.4, gestión de ciclo de vida del sensor y selector rápido de resolución [<code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">AnalysisResolution</code>](file:///Users/joaquinguillermoramirez-gil/AndroidStudioProjects/MyApplication/app/src/main/java/co/edu/unal/gulupascan/ui/screens/CameraScreen.kt).</li>
+<li style="margin-bottom:6px; line-height:1.5;"><strong><code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">MainActivity.kt</code></strong>: Enrutador central Jetpack Compose Navigation, temas y localización en tiempo real con <code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">LocalizedContext</code>.</li>
+<li style="margin-bottom:6px; line-height:1.5;"><strong><code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">CameraScreen.kt</code></strong>: Integración con CameraX 1.4, gestión de ciclo de vida del sensor y selector rápido de resolución <code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">AnalysisResolution</code>.</li>
 <li style="margin-bottom:6px; line-height:1.5;"><strong><code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">OnnxAnalyzer.kt</code></strong>: Pipeline de visión artificial con tensores ONNX Runtime, decodificación de matrices de prototipos y generación de máscaras de segmentación.</li>
 <li style="margin-bottom:6px; line-height:1.5;"><strong><code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">PdfReportGenerator.kt</code></strong>: Generador vectorial de informes técnicos fitosanitarios listos para imprimir o remitir al ICA / exportadora.</li>
 <br>

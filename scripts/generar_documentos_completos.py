@@ -35,6 +35,17 @@ def get_base64_img(rel_path: str) -> str:
     b64 = base64.b64encode(img_path.read_bytes()).decode("ascii")
     return f"data:{mime};base64,{b64}"
 
+def enlaces(texto: str) -> str:
+    """Convierte [texto](url) y <https://...> de Markdown en HTML; los anclajes internos quedan como texto."""
+    def reemplazo(m):
+        etiqueta, destino = m.group(1), m.group(2)
+        if destino.startswith("http"):
+            return f'<a href="{destino}" style="color:#2d6a4f;">{etiqueta}</a>'
+        return etiqueta
+    texto = re.sub(r'(?<!!)\[([^\]]+)\]\(([^)]+)\)', reemplazo, texto)
+    return re.sub(r'<(https?://[^>]+)>', r'<a href="\1" style="color:#2d6a4f;">\1</a>', texto)
+
+
 def generar_html_con_imagenes_embebidas():
     content = MD_FILE.read_text(encoding="utf-8")
     lines = content.split("\n")
@@ -71,7 +82,7 @@ def generar_html_con_imagenes_embebidas():
                     else:
                         fmt_p = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', p)
                         fmt_p = re.sub(r'`(.*?)`', r'<code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">\1</code>', fmt_p)
-                        cell_content = fmt_p
+                        cell_content = enlaces(fmt_p)
                     html_lines.append(f'<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;">{cell_content}</td>')
                 html_lines.append('</tr>')
             continue
@@ -113,19 +124,19 @@ def generar_html_con_imagenes_embebidas():
             item = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', item)
             item = re.sub(r'\*(.*?)\*', r'<em>\1</em>', item)
             item = re.sub(r'`(.*?)`', r'<code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">\1</code>', item)
-            html_lines.append(f'<li style="margin-bottom:6px; line-height:1.5;">{item}</li>')
+            html_lines.append(f'<li style="margin-bottom:6px; line-height:1.5;">{enlaces(item)}</li>')
         elif re.match(r'^\d+\.\s', stripped):
             item = re.sub(r'^\d+\.\s', '', stripped)
             item = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', item)
             item = re.sub(r'\*(.*?)\*', r'<em>\1</em>', item)
             item = re.sub(r'`(.*?)`', r'<code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">\1</code>', item)
-            html_lines.append(f'<li style="margin-bottom:6px; line-height:1.5;">{item}</li>')
+            html_lines.append(f'<li style="margin-bottom:6px; line-height:1.5;">{enlaces(item)}</li>')
         # Paragraphs
         elif stripped:
             formatted = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', stripped)
             formatted = re.sub(r'\*(.*?)\*', r'<em>\1</em>', formatted)
             formatted = re.sub(r'`(.*?)`', r'<code style="background:#eef5f0; padding:2px 5px; border-radius:3px; font-family:monospace; color:#1b4332;">\1</code>', formatted)
-            html_lines.append(f'<p style="line-height:1.65; color:#222; margin:10px 0;">{formatted}</p>')
+            html_lines.append(f'<p style="line-height:1.65; color:#222; margin:10px 0;">{enlaces(formatted)}</p>')
         else:
             html_lines.append('<br>')
 
@@ -178,13 +189,21 @@ h1, h2, h3, h4 {{
     print(f"OK: Generado HTML con imagenes Base64 ({len(full_html)} bytes)")
 
 def generar_pdf():
-    chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    # Busca Chrome/Edge en macOS o Windows
+    candidatos = [
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+    ]
+    chrome = next((c for c in candidatos if os.path.exists(c)), candidatos[0])
     cmd = [
         chrome,
         "--headless",
         "--disable-gpu",
+        "--no-pdf-header-footer",
         f"--print-to-pdf={PDF_FILE}",
-        f"file://{HTML_FILE}",
+        HTML_FILE.as_uri(),
     ]
     res = subprocess.run(cmd, capture_output=True, text=True)
     if PDF_FILE.exists() and PDF_FILE.stat().st_size > 50000:
