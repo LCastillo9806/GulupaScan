@@ -165,11 +165,11 @@ gulupascaner/
 
 ## 7. Equipo de Investigación y Desarrollo
 
-GulupaScan es el resultado de la tesis de maestría de **Luis Alberto Castillo Sanabria**, autor principal y desarrollador principal de la herramienta. Todos los integrantes son estudiantes de la **Universidad Nacional de Colombia (UNAL)**, y el proyecto contó con el apoyo de la UNAL y del **Laboratorio de Agrocomputación y Análisis Epidemiológico** de la Facultad de Ciencias Agrarias.
+GulupaScan es el resultado de la tesis de maestría de **Luis Alberto Castillo Sanabria**, autor principal y desarrollador principal de la herramienta. Los integrantes son estudiantes de la **Universidad Nacional de Colombia (UNAL)**, con la participación del profesor asociado Joaquín Guillermo Ramírez-Gil, y el proyecto contó con el apoyo de la UNAL y del **Laboratorio de Agrocomputación y Análisis Epidemiológico** de la Facultad de Ciencias Agrarias.
 
 - **Luis Alberto Castillo Sanabria** — *Autor principal y desarrollador principal (tesis de maestría)*
 - **Jesús Enrique Flores-Riera** — *Coautor*
-- **Joaquín Guillermo Ramírez-Gil** — *Coautor*
+- **Joaquín Guillermo Ramírez-Gil** — *Coautor, Profesor Asociado, Facultad de Ciencias Agrarias*
 - **Diego Humberto Lavado González** — *Coautor*
 - **Daniel Felipe Ahumada Hernández** — *Coautor*
 

@@ -4,7 +4,7 @@
 > **Resultado de Tesis de Maestría — Autor y desarrollador principal: Luis Alberto Castillo Sanabria**  
 > **Con el apoyo de la Universidad Nacional de Colombia y del Laboratorio de Agrocomputación y Análisis Epidemiológico, Facultad de Ciencias Agrarias**  
 > **Versión de la Aplicación:** `0.3.0` (Android) / `2.0.0` (iOS)  
-> **Pipeline de Inteligencia Artificial:** `YOLOv8n-seg` en cascada (2 etapas ONNX)  
+> **Pipeline de Inteligencia Artificial:** `YOLO26n-seg` en cascada (2 etapas ONNX)  
 
 ---
 
@@ -50,11 +50,11 @@ A diferencia de las aplicaciones convencionales que dependen obligatoriamente de
 |:---|:---|
 | **Luis Alberto Castillo Sanabria** | Autor principal y desarrollador principal (tesis de maestría) |
 | **Jesús Enrique Flores-Riera** | Coautor |
-| **Joaquín Guillermo Ramírez-Gil** | Coautor |
+| **Joaquín Guillermo Ramírez-Gil** | Coautor — Profesor Asociado, Facultad de Ciencias Agrarias |
 | **Diego Humberto Lavado González** | Coautor |
 | **Daniel Felipe Ahumada Hernández** | Coautor |
 
-Todos los integrantes del equipo son estudiantes de la **Universidad Nacional de Colombia (UNAL)**.
+Los integrantes del equipo son estudiantes de la **Universidad Nacional de Colombia (UNAL)**, con la participación del profesor asociado **Joaquín Guillermo Ramírez-Gil** de la Facultad de Ciencias Agrarias.
 
 ### Apoyo Institucional
 El proyecto contó con el apoyo de la **Universidad Nacional de Colombia** y del **Laboratorio de Agrocomputación y Análisis Epidemiológico** de la **Facultad de Ciencias Agrarias**.
@@ -83,7 +83,7 @@ flowchart TD
 
 ## 4. Pipeline de Inteligencia Artificial (ONNX en 2 Etapas)
 
-La aplicación ejecuta un pipeline en cascada compuesto por dos redes neuronales convolucionales de segmentación de instancias basadas en la arquitectura **YOLOv8n-seg**:
+La aplicación ejecuta un pipeline en cascada compuesto por dos redes neuronales convolucionales de segmentación de instancias basadas en la arquitectura **YOLO26n-seg**:
 
 ### 1. Etapa A: Localización y Aislamiento del Fruto (`gulupa_fruto.onnx`)
 - **Resolución de entrada de la red:** `480 × 480` píxeles con preprocesamiento *letterbox* (relleno con color neutro 114).
@@ -182,7 +182,7 @@ Resume el dictamen global del lote o fruto:
 
 ### Módulo 7: Métricas Técnicas y Diagnóstico del Modelo
 Diseñado para ingenieros agrónomos, desarrolladores e investigadores. Despliega una auditoría de rendimiento en tiempo real:
-- **Motor:** `YOLOv8n-seg On-Device (ONNX CPU Execution Provider)`.
+- **Motor:** `YOLO26n-seg On-Device (ONNX CPU Execution Provider)`.
 - **Tiempo Etapa A (Fruto):** `1463 ms`.
 - **Tiempo Etapa B (Lesiones):** `950 ms`.
 - **Tiempo total de cómputo:** `2413 ms` (0.4 FPS en emulador).
@@ -228,7 +228,7 @@ Proporciona instrucciones ilustradas al operario para asegurar fotografías homo
 ---
 
 ### Módulo 12: Información Técnica del Equipo y Créditos
-Presenta los créditos de la herramienta: GulupaScan es resultado de la tesis de maestría de **Luis Alberto Castillo Sanabria** (autor y desarrollador principal), con la participación de los coautores, todos estudiantes de la Universidad Nacional de Colombia, y con el apoyo del **Laboratorio de Agrocomputación y Análisis Epidemiológico** de la Facultad de Ciencias Agrarias. También muestra la versión del software. Ver la [sección 2](#2-autoría-equipo-y-apoyo-institucional).
+Presenta los créditos de la herramienta: GulupaScan es resultado de la tesis de maestría de **Luis Alberto Castillo Sanabria** (autor y desarrollador principal), con la participación de los coautores, estudiantes de la Universidad Nacional de Colombia, y del profesor asociado Joaquín Guillermo Ramírez-Gil, y con el apoyo del **Laboratorio de Agrocomputación y Análisis Epidemiológico** de la Facultad de Ciencias Agrarias. También muestra la versión del software. Ver la [sección 2](#2-autoría-equipo-y-apoyo-institucional).
 
 ---
 

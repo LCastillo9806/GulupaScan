@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Generador automatizado de activos visuales ONNX y Manual Técnico/Usuario de GulupaScan.
 
-Ejecuta el pipeline real en cascada (YOLOv8n-seg Etapa A 480x480 + Etapa B 640x640)
+Ejecuta el pipeline real en cascada (YOLO26n-seg Etapa A 480x480 + Etapa B 640x640)
 sobre la fotografía real de gulupa (`docs/manual/assets/muestra_real_gulupa.jpg`),
 exporta cada etapa intermedia del flujo de visión artificial y construye el panel
 comparativo de las 5 resoluciones de entrada (Baja, Media, Alta, Original y Ultra Alta).

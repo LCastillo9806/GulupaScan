@@ -41,7 +41,7 @@ h1, h2, h3, h4 {
 <blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Resultado de Tesis de Maestría — Autor y desarrollador principal: Luis Alberto Castillo Sanabria</strong></blockquote>
 <blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Con el apoyo de la Universidad Nacional de Colombia y del Laboratorio de Agrocomputación y Análisis Epidemiológico, Facultad de Ciencias Agrarias</strong></blockquote>
 <blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Versión de la Aplicación:</strong> <code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">0.3.0</code> (Android) / <code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">2.0.0</code> (iOS)</blockquote>
-<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Pipeline de Inteligencia Artificial:</strong> <code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">YOLOv8n-seg</code> en cascada (2 etapas ONNX)</blockquote>
+<blockquote style="border-left:4px solid #2d6a4f; background:#f4f9f5; margin:14px 0; padding:10px 16px; border-radius:0 6px 6px 0; color:#1b4332;"><strong>Pipeline de Inteligencia Artificial:</strong> <code style="background:#e8f5e9; padding:2px 4px; border-radius:3px;">YOLO26n-seg</code> en cascada (2 etapas ONNX)</blockquote>
 <br>
 <hr style="border:none; border-top:1px solid #e0e0e0; margin:28px 0;">
 <br>
@@ -98,7 +98,7 @@ h1, h2, h3, h4 {
 </tr>
 <tr style="border-bottom:1px solid #ddd; background:#fafafa;">
 <td style="border:1px solid #ddd; padding:10px; vertical-align:middle;"><strong>Joaquín Guillermo Ramírez-Gil</strong></td>
-<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;">Coautor</td>
+<td style="border:1px solid #ddd; padding:10px; vertical-align:middle;">Coautor — Profesor Asociado, Facultad de Ciencias Agrarias</td>
 </tr>
 <tr style="border-bottom:1px solid #ddd; background:#fafafa;">
 <td style="border:1px solid #ddd; padding:10px; vertical-align:middle;"><strong>Diego Humberto Lavado González</strong></td>
@@ -110,7 +110,7 @@ h1, h2, h3, h4 {
 </tr>
 </tbody></table>
 <br>
-<p style="line-height:1.65; color:#222; margin:10px 0;">Todos los integrantes del equipo son estudiantes de la <strong>Universidad Nacional de Colombia (UNAL)</strong>.</p>
+<p style="line-height:1.65; color:#222; margin:10px 0;">Los integrantes del equipo son estudiantes de la <strong>Universidad Nacional de Colombia (UNAL)</strong>, con la participación del profesor asociado <strong>Joaquín Guillermo Ramírez-Gil</strong> de la Facultad de Ciencias Agrarias.</p>
 <br>
 <h3 style="color:#386641; margin-top:22px; font-size:17px; page-break-after:avoid;">Apoyo Institucional</h3>
 <p style="line-height:1.65; color:#222; margin:10px 0;">El proyecto contó con el apoyo de la <strong>Universidad Nacional de Colombia</strong> y del <strong>Laboratorio de Agrocomputación y Análisis Epidemiológico</strong> de la <strong>Facultad de Ciencias Agrarias</strong>.</p>
@@ -139,7 +139,7 @@ h1, h2, h3, h4 {
 <br>
 <h2 style="color:#2d6a4f; border-bottom:1.5px solid #b7e4c7; padding-bottom:6px; margin-top:30px; font-size:20px; page-break-after:avoid;">4. Pipeline de Inteligencia Artificial (ONNX en 2 Etapas)</h2>
 <br>
-<p style="line-height:1.65; color:#222; margin:10px 0;">La aplicación ejecuta un pipeline en cascada compuesto por dos redes neuronales convolucionales de segmentación de instancias basadas en la arquitectura <strong>YOLOv8n-seg</strong>:</p>
+<p style="line-height:1.65; color:#222; margin:10px 0;">La aplicación ejecuta un pipeline en cascada compuesto por dos redes neuronales convolucionales de segmentación de instancias basadas en la arquitectura <strong>YOLO26n-seg</strong>:</p>
 <br>
 <h3 style="color:#386641; margin-top:22px; font-size:17px; page-break-after:avoid;">1. Etapa A: Localización y Aislamiento del Fruto (`gulupa_fruto.onnx`)</h3>
 <li style="margin-bottom:6px; line-height:1.5;"><strong>Resolución de entrada de la red:</strong> <code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">480 × 480</code> píxeles con preprocesamiento <em>letterbox</em> (relleno con color neutro 114).</li>
@@ -317,7 +317,7 @@ h1, h2, h3, h4 {
 <br>
 <h3 style="color:#386641; margin-top:22px; font-size:17px; page-break-after:avoid;">Módulo 7: Métricas Técnicas y Diagnóstico del Modelo</h3>
 <p style="line-height:1.65; color:#222; margin:10px 0;">Diseñado para ingenieros agrónomos, desarrolladores e investigadores. Despliega una auditoría de rendimiento en tiempo real:</p>
-<li style="margin-bottom:6px; line-height:1.5;"><strong>Motor:</strong> <code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">YOLOv8n-seg On-Device (ONNX CPU Execution Provider)</code>.</li>
+<li style="margin-bottom:6px; line-height:1.5;"><strong>Motor:</strong> <code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">YOLO26n-seg On-Device (ONNX CPU Execution Provider)</code>.</li>
 <li style="margin-bottom:6px; line-height:1.5;"><strong>Tiempo Etapa A (Fruto):</strong> <code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">1463 ms</code>.</li>
 <li style="margin-bottom:6px; line-height:1.5;"><strong>Tiempo Etapa B (Lesiones):</strong> <code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">950 ms</code>.</li>
 <li style="margin-bottom:6px; line-height:1.5;"><strong>Tiempo total de cómputo:</strong> <code style="background:#eef5f0; padding:2px 4px; border-radius:3px; font-family:monospace; color:#1b4332;">2413 ms</code> (0.4 FPS en emulador).</li>
@@ -385,7 +385,7 @@ h1, h2, h3, h4 {
 <hr style="border:none; border-top:1px solid #e0e0e0; margin:28px 0;">
 <br>
 <h3 style="color:#386641; margin-top:22px; font-size:17px; page-break-after:avoid;">Módulo 12: Información Técnica del Equipo y Créditos</h3>
-<p style="line-height:1.65; color:#222; margin:10px 0;">Presenta los créditos de la herramienta: GulupaScan es resultado de la tesis de maestría de <strong>Luis Alberto Castillo Sanabria</strong> (autor y desarrollador principal), con la participación de los coautores, todos estudiantes de la Universidad Nacional de Colombia, y con el apoyo del <strong>Laboratorio de Agrocomputación y Análisis Epidemiológico</strong> de la Facultad de Ciencias Agrarias. También muestra la versión del software. Ver la sección 2.</p>
+<p style="line-height:1.65; color:#222; margin:10px 0;">Presenta los créditos de la herramienta: GulupaScan es resultado de la tesis de maestría de <strong>Luis Alberto Castillo Sanabria</strong> (autor y desarrollador principal), con la participación de los coautores, estudiantes de la Universidad Nacional de Colombia, y del profesor asociado Joaquín Guillermo Ramírez-Gil, y con el apoyo del <strong>Laboratorio de Agrocomputación y Análisis Epidemiológico</strong> de la Facultad de Ciencias Agrarias. También muestra la versión del software. Ver la sección 2.</p>
 <br>
 <hr style="border:none; border-top:1px solid #e0e0e0; margin:28px 0;">
 <br>
