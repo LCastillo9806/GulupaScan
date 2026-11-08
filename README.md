@@ -40,6 +40,23 @@
 - **Mancha de Aceite / Bacteriosis** (*Xanthomonas axonopodis* pv. *passiflorae*)
 - **Porcentaje exacto de área epidérmica afectada (%)**, clasificación en **escala de severidad 1–10** y generación de **informes técnicos en PDF**.
 
+### Capturas de la aplicación
+
+Capturas tomadas en un teléfono Android real durante el análisis de un fruto con sarna. El recorrido completo está en el [Manual Técnico y de Usuario](./docs/MANUAL_USUARIO_Y_TECNICO.md#6-pantallazos-y-funcionamiento-módulo-por-módulo-android--ios).
+
+<p align="center">
+  <img src="docs/manual/assets/app_03_camara.png" width="200" alt="Cámara con selector de resolución">
+  <img src="docs/manual/assets/app_04_tipos_dano.png" width="200" alt="Tipos de daño detectados">
+  <img src="docs/manual/assets/app_08_detalle_dano.png" width="200" alt="Detalle del daño y escala de severidad">
+  <img src="docs/manual/assets/app_06_resultado_final.png" width="200" alt="Resultado final">
+</p>
+<p align="center">
+  <img src="docs/manual/assets/app_09_detalles_tecnicos.png" width="200" alt="Detalles técnicos del pipeline">
+  <img src="docs/manual/assets/app_11_historial.png" width="200" alt="Historial de reportes">
+  <img src="docs/manual/assets/app_13_perfil.png" width="200" alt="Perfil del productor">
+  <img src="docs/manual/assets/app_14_configuracion.png" width="200" alt="Configuración">
+</p>
+
 ---
 
 ## 2. Arquitectura de Inteligencia Artificial en Dos Etapas (`YOLO26n-seg`)

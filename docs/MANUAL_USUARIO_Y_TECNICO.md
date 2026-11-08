@@ -134,96 +134,118 @@ Se incorporó un selector dinámico en la barra inferior de la cámara con **5 n
 
 ## 6. Pantallazos y Funcionamiento Módulo por Módulo (Android & iOS)
 
-A continuación se presentan los módulos funcionales capturados en tiempo real en los dispositivos de prueba:
+A continuación se presentan los módulos funcionales, capturados en un teléfono Android real durante el análisis de un fruto con síntomas de sarna:
 
 ### Módulo 1: Autenticación y Perfil del Productor
 Permite el registro e inicio de sesión local para asociar cada análisis fitosanitario a un productor, asistente técnico y finca específica. Los datos se almacenan de forma segura en `DataStore` (Android) y `UserDefaults` (iOS).
 
-| Pantalla de Acceso (Android) | Configuración de Perfil (iOS) |
+| Pantalla de bienvenida | Crear cuenta |
 |:---:|:---:|
-| ![Auth Android](manual/assets/android_01_auth_inicio.png) | ![Perfil iOS](manual/assets/ios_01_pantalla.png) |
+| ![Bienvenida](manual/assets/app_00_bienvenida.png) | ![Crear cuenta](manual/assets/app_01_crear_cuenta.png) |
+
+| Configuración de Perfil (iOS) |
+|:---:|
+| ![Perfil iOS](manual/assets/ios_01_pantalla.png) |
 
 ---
 
 ### Módulo 2: Cámara y Selector Dinámico de 5 Resoluciones
-Ofrece visor en tiempo real en proporción 4:3 con esquinas guía para centrar el fruto, enfoque táctil (*Tap-to-Focus*), control de flash, cambio de lente y la barra con los botones directos: **Baja·640p**, **Media·1024p**, **Alta·2K**, **Original** y **Ultra·2×2**, además de un botón de muestra rápida con la foto real.
+Al iniciar una nueva exploración, la app solicita el permiso de cámara (también se puede elegir una imagen de la galería). El visor en proporción 4:3 tiene esquinas guía para centrar el fruto, enfoque táctil (*Tap-to-Focus*), control de flash, cambio de lente y la barra con los botones directos: **Baja·640p**, **Media·1024p**, **Alta·2K**, **Original** y **Ultra·2×2**.
 
-| Visor de Cámara y Resoluciones (Android) |
-|:---:|
-| ![Camara Android](manual/assets/android_02_camara_5_resoluciones.png) |
+| Permiso de cámara | Visor y selector de resolución |
+|:---:|:---:|
+| ![Permiso de cámara](manual/assets/app_02_permiso_camara.png) | ![Cámara](manual/assets/app_03_camara.png) |
 
 ---
 
 ### Módulo 3: Procesamiento en el Teléfono (ONNX Offline)
-Muestra una animación con los colores institucionales mientras los hilos de CPU ejecutan la inferencia. Si no hay conexión o falla la red, el sistema activa automáticamente el motor local ONNX sin interrumpir la labor del evaluador.
+Muestra una animación con los colores de la aplicación mientras los hilos de CPU ejecutan la inferencia. Si no hay conexión o falla la red, el sistema activa automáticamente el motor local ONNX sin interrumpir la labor del evaluador (etiqueta **"Modelo en teléfono (Offline)"**).
 
 ---
 
 ### Módulo 4: Tipos de Daño Detectados
-Presenta un desglose jerárquico de las clases identificadas sobre el fruto analizado. En la muestra real evaluada, identifica con precisión:
-- **Sarna (Roña) — *Cladosporium spp.*:** **36.3%** del área total.
-- **Fruto sano:** **63.7%** del área evaluada.
-- Tarjeta de recomendación de encuadre en caso de que el fruto ocupe un área menor a la óptima.
+Presenta un desglose de las clases identificadas sobre el fruto analizado, con la máscara de las lesiones superpuesta en rojo. En la muestra evaluada identifica:
+- **Sarna (Roña) — *Cladosporium spp.*:** **29,4 %** del área analizada.
+- **Fruto sano:** **70,6 %** del área analizada.
+- Tarjeta de recomendación de encuadre cuando el fruto ocupa poca área en la foto (en el ejemplo, 602 px frente a los 640 px con los que trabaja el modelo).
+
+| Tipos de daño detectados |
+|:---:|
+| ![Tipos de daño](manual/assets/app_04_tipos_dano.png) |
 
 ---
 
 ### Módulo 5: Detalle del Daño y Escala Visual de Severidad 1–10
 Proporciona la ficha técnica fitopatológica de la enfermedad detectada, describiendo la etiología de las lesiones corchosas y ubicando el nivel de daño en la **escala estandarizada de 1 a 10**:
-- **Nivel 8 de 10:** Severidad Alta (> 40% del área según tabla de umbrales fitosanitarios).
+- **Nivel 8 de 10:** Severidad Alta, con un **área afectada del 29,4 %** del área analizada.
+
+| Detalle del daño y escala de severidad |
+|:---:|
+| ![Detalle del daño](manual/assets/app_08_detalle_dano.png) |
 
 ---
 
 ### Módulo 6: Resultado Final, Exportación PDF y Compartir
-Resume el dictamen global del lote o fruto:
-- **Dictamen:** *Fruto con daños severos (Descarte / Industria)*.
-- **Acciones disponibles:** Guardar en historial, exportar informe técnico formal en **PDF** con membrete, descargar imagen original o procesada y compartir directamente por **WhatsApp** o correo electrónico.
+Resume el dictamen global del fruto:
+- **Clasificación general:** *Fruto con daños moderados (Categoría II)* — daño moderado (5–20 %); evaluar destino agroindustrial o mercado local y aplicar control fitosanitario preventivo.
+- **Resumen de daños:** Sarna (Roña) 29,4 % · Fruto sano 70,6 %.
+- **Acciones disponibles:** guardar el resultado, exportar el reporte en **PDF**, descargar la foto original o procesada, compartir por redes o **WhatsApp**, ver los detalles técnicos o iniciar una nueva exploración.
+
+| Resultado final | Resumen y acciones |
+|:---:|:---:|
+| ![Resultado final](manual/assets/app_06_resultado_final.png) | ![Acciones del resultado](manual/assets/app_07_resultado_acciones.png) |
 
 ---
 
 ### Módulo 7: Métricas Técnicas y Diagnóstico del Modelo
-Diseñado para ingenieros agrónomos, desarrolladores e investigadores. Despliega una auditoría de rendimiento en tiempo real:
-- **Motor:** `YOLO26n-seg On-Device (ONNX CPU Execution Provider)`.
-- **Tiempo Etapa A (Fruto):** `1463 ms`.
-- **Tiempo Etapa B (Lesiones):** `950 ms`.
-- **Tiempo total de cómputo:** `2413 ms` (0.4 FPS en emulador).
-- **Dimensiones de entrada procesadas:** `960 × 1280 px`.
+Diseñado para ingenieros agrónomos, desarrolladores e investigadores. Muestra las imágenes intermedias del pipeline (imagen original, fruto aislado por el Modelo A, recorte del fruto y resultado final) y una auditoría de rendimiento:
+- **Motor:** `YOLO26n-seg On-Device (ONNX CPU)`.
+- **Diagnóstico principal:** `Scab` (Sarna) · **Confianza de detección:** 84 % · **Confianza de localización:** 88 %.
+- **Tiempo Modelo A (Fruto):** `3366 ms` · **Tiempo Modelo B (Lesiones):** `2797 ms`.
+- **Tiempo total de cómputo:** `6163 ms` (0.2 FPS en el teléfono de prueba).
+- **Resolución de la foto analizada:** `960 × 1280 px` · **Lado mayor del recorte del fruto:** `602 px`.
+- **Resolución de entrada:** Modelo A `480×480` · Modelo B `640×640`.
 - **Peso de los modelos integrados:** `gulupa_fruto.onnx` (3.2 MB) y `gulupa_lesiones.onnx` (3.3 MB).
+
+| Imágenes del pipeline | Métricas de inferencia |
+|:---:|:---:|
+| ![Detalles técnicos](manual/assets/app_09_detalles_tecnicos.png) | ![Métricas](manual/assets/app_10_metricas.png) |
 
 ---
 
 ### Módulo 8: Historial Local de Diagnósticos
-Almacena cronológicamente todos los escaneos realizados en la finca, indicando fecha, hora, diagnóstico dominante, severidad porcentual y estado de sincronización.
+Almacena cronológicamente todos los escaneos realizados, indicando fecha, hora, clasificación del fruto y severidad total. Cada reporte se puede abrir de nuevo o eliminar.
 
-| Historial Local (Android) |
+| Mis reportes anteriores |
 |:---:|
-| ![Historial](manual/assets/android_06_historial.png) |
+| ![Historial](manual/assets/app_11_historial.png) |
 
 ---
 
 ### Módulo 9: Alertas Fitosanitarias y Umbrales Críticos
-Notifica al agricultor cuando la presencia de una plaga o patógeno sobrepasa los niveles de daño económico permisibles para exportación, sugiriendo medidas de manejo integrado de plagas (MIP).
+Notifica al agricultor cuando la severidad de un fruto sobrepasa los umbrales definidos e incluye consejos agronómicos; por ejemplo, revisar el lote cuando varios frutos muestren severidad mayor al 10 %, porque la detección oportuna de roña o antracnosis reduce pérdidas en poscosecha.
 
-| Centro de Alertas (Android) |
+| Alertas y notificaciones |
 |:---:|
-| ![Alertas](manual/assets/android_07_alertas.png) |
+| ![Alertas](manual/assets/app_12_alertas.png) |
 
 ---
 
 ### Módulo 10: Perfil, Configuración y Personalización
-Permite alternar entre idioma **Español** e **Inglés**, cambiar la paleta de colores de la interfaz, gestionar los datos del productor (nombre, rol, finca, ubicación) y seleccionar el servidor de respaldo en caso de requerir sincronización remota.
+El perfil reúne los datos del productor (nombre, rol, ubicación, hectáreas y contacto) y da acceso a reportes, alertas, configuración e instrucciones. En **Configuración** se puede alternar entre **Español** e **Inglés**, elegir el tema visual (**Verde campo** o **Morado gulupa**) y seleccionar la resolución de cámara y procesamiento (**Baja**, **Media**, **Alta**, **Original Equipo** o **Ultra 2×2**).
 
-| Perfil de Usuario | Configuración y Preferencias |
+| Perfil de usuario | Configuración y preferencias |
 |:---:|:---:|
-| ![Perfil](manual/assets/android_08_perfil.png) | ![Configuracion](manual/assets/android_09_configuracion.png) |
+| ![Perfil](manual/assets/app_13_perfil.png) | ![Configuración](manual/assets/app_14_configuracion.png) |
 
 ---
 
 ### Módulo 11: Guía de Toma de Fotografías
-Proporciona instrucciones ilustradas al operario para asegurar fotografías homogéneas: iluminación natural difusa, distancia de 20 a 30 cm, encuadre centrado y enfoque nítido sobre la cáscara.
+Proporciona instrucciones ilustradas paso a paso para obtener fotografías homogéneas: un solo fruto por foto, retirar el polvo o la humedad sin frotar la cáscara, preferir luz natural difusa y evitar el sol directo y los reflejos.
 
-| Guía de Uso y Buenas Prácticas |
+| Instrucciones de uso |
 |:---:|
-| ![Guia](manual/assets/android_10_guia_uso.png) |
+| ![Instrucciones](manual/assets/app_15_instrucciones.png) |
 
 ---
 
