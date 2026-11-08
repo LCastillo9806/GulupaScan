@@ -92,7 +92,7 @@ La aplicación ejecuta un pipeline en cascada compuesto por dos redes neuronales
 
 | 1. Fotografía original | 2. Detección y máscara Etapa A (480x480) | 3. Recorte centrado con fondo neutro |
 |:---:|:---:|:---:|
-| ![Original](assets/onnx_01_original.jpg) | ![Etapa A](assets/onnx_02_etapa_a_caja_mascara.jpg) | ![Recorte](assets/onnx_03_recorte_fondo_gris.jpg) |
+| ![Original](manual/assets/onnx_01_original.jpg) | ![Etapa A](manual/assets/onnx_02_etapa_a_caja_mascara.jpg) | ![Recorte](manual/assets/onnx_03_recorte_fondo_gris.jpg) |
 
 ### 2. Recorte Inteligente y Supresión de Fondo
 - Se toma la caja delimitadora del fruto y se le añade un **margen de seguridad del 10%**.
@@ -105,7 +105,7 @@ La aplicación ejecuta un pipeline en cascada compuesto por dos redes neuronales
 
 | 4. Máscara binaria Etapa B (640x640) | 5. Superposición RGBA de lesiones | 6. Diagnóstico final fusionado |
 |:---:|:---:|:---:|
-| ![Máscara B](assets/onnx_04_etapa_b_mascara.png) | ![Overlay B](assets/onnx_05_etapa_b_overlay.png) | ![Resultado Final](assets/onnx_06_resultado_final.jpg) |
+| ![Máscara B](manual/assets/onnx_04_etapa_b_mascara.png) | ![Overlay B](manual/assets/onnx_05_etapa_b_overlay.png) | ![Resultado Final](manual/assets/onnx_06_resultado_final.jpg) |
 
 ---
 
@@ -118,7 +118,7 @@ La aplicación ejecuta un pipeline en cascada compuesto por dos redes neuronales
 
 Se incorporó un selector dinámico en la barra inferior de la cámara con **5 niveles configurables con un solo toque**:
 
-![Comparativa de Resoluciones](assets/onnx_07_comparativa_resoluciones.jpg)
+![Comparativa de Resoluciones](manual/assets/onnx_07_comparativa_resoluciones.jpg)
 
 ### Matriz Comparativa de Rendimiento (Evaluada con la foto real):
 
@@ -141,7 +141,7 @@ Permite el registro e inicio de sesión local para asociar cada análisis fitosa
 
 | Pantalla de Acceso (Android) | Configuración de Perfil (iOS) |
 |:---:|:---:|
-| ![Auth Android](assets/android_01_auth_inicio.png) | ![Perfil iOS](assets/ios_01_pantalla.png) |
+| ![Auth Android](manual/assets/android_01_auth_inicio.png) | ![Perfil iOS](manual/assets/ios_01_pantalla.png) |
 
 ---
 
@@ -150,7 +150,7 @@ Ofrece visor en tiempo real en proporción 4:3 con esquinas guía para centrar e
 
 | Visor de Cámara y Resoluciones (Android) |
 |:---:|
-| ![Camara Android](assets/android_02_camara_5_resoluciones.png) |
+| ![Camara Android](manual/assets/android_02_camara_5_resoluciones.png) |
 
 ---
 
@@ -196,7 +196,7 @@ Almacena cronológicamente todos los escaneos realizados en la finca, indicando 
 
 | Historial Local (Android) |
 |:---:|
-| ![Historial](assets/android_06_historial.png) |
+| ![Historial](manual/assets/android_06_historial.png) |
 
 ---
 
@@ -205,7 +205,7 @@ Notifica al agricultor cuando la presencia de una plaga o patógeno sobrepasa lo
 
 | Centro de Alertas (Android) |
 |:---:|
-| ![Alertas](assets/android_07_alertas.png) |
+| ![Alertas](manual/assets/android_07_alertas.png) |
 
 ---
 
@@ -214,7 +214,7 @@ Permite alternar entre idioma **Español** e **Inglés**, cambiar la paleta de c
 
 | Perfil de Usuario | Configuración y Preferencias |
 |:---:|:---:|
-| ![Perfil](assets/android_08_perfil.png) | ![Configuracion](assets/android_09_configuracion.png) |
+| ![Perfil](manual/assets/android_08_perfil.png) | ![Configuracion](manual/assets/android_09_configuracion.png) |
 
 ---
 
@@ -223,7 +223,7 @@ Proporciona instrucciones ilustradas al operario para asegurar fotografías homo
 
 | Guía de Uso y Buenas Prácticas |
 |:---:|
-| ![Guia](assets/android_10_guia_uso.png) |
+| ![Guia](manual/assets/android_10_guia_uso.png) |
 
 ---
 
