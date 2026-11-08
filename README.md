@@ -147,7 +147,7 @@ xcrun simctl launch "iPhone 17" co.edu.unal.gulupascan
 ## 6. Estructura del Repositorio
 
 ```text
-gulupascaner/
+GulupaScan/
 ├── app/                        # Proyecto Android principal (Kotlin + Jetpack Compose + ONNX)
 │   ├── src/main/assets/        # Modelos gulupa_fruto.onnx, gulupa_lesiones.onnx y metadatos JSON
 │   └── android/                # Espejo Android sincronizado para el workflow CI/CD de GitHub Actions

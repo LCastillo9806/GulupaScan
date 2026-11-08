@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Automatización de la insignia 'Quickdraw' en GitHub usando PyGithub.
 
-Este script se autentica en el repositorio `jf-floresriera/gulupascaner`, abre un
+Este script se autentica en el repositorio `LCastillo9806/GulupaScan`, abre un
 nuevo Issue de verificación, espera un intervalo configurable (por defecto 60 s,
 dentro de la ventana oficial de 5 minutos de GitHub) y lo cierra automáticamente.
 
@@ -45,7 +45,7 @@ def obtener_token() -> str:
 
 
 def ejecutar_quickdraw(
-    repo_name: str = "jf-floresriera/gulupascaner",
+    repo_name: str = "LCastillo9806/GulupaScan",
     title: str = "Test Issue: Verificación automática de pipeline ONNX",
     wait_seconds: int = 60,
 ) -> None:
@@ -83,7 +83,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--repo",
-        default="jf-floresriera/gulupascaner",
+        default="LCastillo9806/GulupaScan",
         help="Nombre completo del repositorio (usuario/repo).",
     )
     parser.add_argument(

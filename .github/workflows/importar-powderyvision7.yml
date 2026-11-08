@@ -1,7 +1,7 @@
 name: Importar PowderyVision7 (proyecto base)
 
 # Copia el Space de Hugging Face jf-floresriera/powderyvision7
-# dentro de proyecto-base/powderyvision7/ como referencia para GulupaScaner.
+# dentro de proyecto-base/powderyvision7/ como referencia para GulupaScan.
 # Se ejecuta al subir este archivo y puede relanzarse a mano desde
 # la pestaña "Actions" → "Run workflow" para volver a sincronizar.
 

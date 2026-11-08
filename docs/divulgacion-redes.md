@@ -9,11 +9,11 @@ Este documento reúne:
 
 ## 1. Publicación para LinkedIn (Español)
 
-> **🌱📱 ¡Lanzamos GulupaScan v0.3.0 (Open Source): Inteligencia Artificial 100 % Offline para el diagnóstico fitosanitario de gulupa (*Passiflora edulis* Sims) en Android e iOS!**
+> **🌱📱 ¡Lanzo GulupaScan v0.3.0 (Open Source): Inteligencia Artificial 100 % Offline para el diagnóstico fitosanitario de gulupa (*Passiflora edulis* Sims) en Android e iOS!**
 >
 > En Colombia, la gulupa es una de las frutas de exportación más importantes, pero enfermedades epidérmicas como la **Sarna (*Cladosporium cladosporioides*)**, la **Antracnosis (*Colletotrichum gloeosporioides*)** y la **Mancha de aceite (*Xanthomonas axonopodis*)** generan pérdidas críticas en cosecha y poscosecha.
 >
-> Desde la **Universidad Nacional de Colombia (UNAL)** desarrollamos **GulupaScan**, una aplicación móvil nativa (Jetpack Compose + SwiftUI) que ejecuta en el borde (**Edge AI**, sin necesidad de internet en la finca) un pipeline en cascada de dos redes de segmentación **YOLO26n-seg cuantizadas a INT8 (ONNX Runtime)**:
+> Como resultado de mi **tesis de maestría**, y con el apoyo de la **Universidad Nacional de Colombia (UNAL)** y del **Laboratorio de Agrocomputación y Análisis Epidemiológico** de la Facultad de Ciencias Agrarias, desarrollé **GulupaScan**, una aplicación móvil nativa (Jetpack Compose + SwiftUI) que ejecuta en el borde (**Edge AI**, sin necesidad de internet en la finca) un pipeline en cascada de dos redes de segmentación **YOLO26n-seg cuantizadas a INT8 (ONNX Runtime)**:
 >
 > ✅ **Etapa A (`gulupa_fruto.onnx` · 3.23 MB · IoU 98.13 %)**: Localiza el fruto, recorta con margen del 10 % y aísla el fondo natural reemplazándolo por gris neutro `RGB(128,128,128)`.
 > ✅ **Etapa B (`gulupa_lesiones.onnx` · 3.30 MB · IoU 90.22 %)**: Segmenta píxel a píxel cada patología sobre la corteza, calcula el porcentaje exacto de área afectada y lo ubica en una **escala fitosanitaria del 1 al 10**.
@@ -21,9 +21,9 @@ Este documento reúne:
 > ✅ **Exportación de Informes PDF** con evidencia visual y recomendaciones agronómicas.
 >
 > 🔗 **Repositorio completo (Código Android, iOS, Backend Docker/Conda y Modelos ONNX):**
-> 👉 https://github.com/jf-floresriera/gulupascaner
+> 👉 https://github.com/LCastillo9806/GulupaScan
 >
-> ⭐ **¡Si trabajas en visión por computador, fitopatología, agricultura digital o Edge AI, te invitamos a explorar el repositorio y regalarle una estrella (`Star`) en GitHub!**
+> ⭐ **¡Si trabajas en visión por computador, fitopatología, agricultura digital o Edge AI, te invito a explorar el repositorio y regalarle una estrella (`Star`) en GitHub!**
 >
 > `#AgTech` `#ComputerVision` `#PlantPathology` `#EdgeAI` `#ONNX` `#YOLO` `#AndroidDev` `#SwiftUI` `#UNAL` `#OpenSource`
 
@@ -35,7 +35,7 @@ Este documento reúne:
 >
 > Hi everyone! 👋
 >
-> We just open-sourced **GulupaScan v0.3.0**, an end-to-end mobile Edge AI system developed at the **National University of Colombia (UNAL)** for automated detection and pixel-level severity quantification of epidermal diseases in purple passion fruit (*Passiflora edulis* Sims):
+> I just open-sourced **GulupaScan v0.3.0**, the result of my **master's thesis**, developed with the support of the **National University of Colombia (UNAL)** and its **Laboratory of Agrocomputing and Epidemiological Analysis** (Faculty of Agricultural Sciences). It is an end-to-end mobile Edge AI system for automated detection and pixel-level severity quantification of epidermal diseases in purple passion fruit (*Passiflora edulis* Sims):
 > - **Scab** (*Cladosporium cladosporioides*)
 > - **Anthracnose** (*Colletotrichum gloeosporioides*)
 > - **Bacterial Oil Spot** (*Xanthomonas axonopodis* pv. *passiflorae*)
@@ -48,7 +48,7 @@ Este documento reúne:
 > - **Training-Free `2×2` Multi-Tile Ultra Mode**: Captures at full native sensor resolution and runs Stage B across 4 overlapping 60% quadrants + 1 global view, reaching **`1280×1280` effective neural resolution** for micro-lesions.
 > - **Cross-Platform Native Apps**: Full feature parity across **Android** (Kotlin, Jetpack Compose, CameraX) and **iOS** (Swift, SwiftUI).
 >
-> 🔗 **GitHub Repository:** https://github.com/jf-floresriera/gulupascaner
+> 🔗 **GitHub Repository:** https://github.com/LCastillo9806/GulupaScan
 >
 > If you find this useful for your research in agricultural computer vision or mobile ONNX deployment, **please consider giving the repo a ⭐ Star on GitHub!** Feedback and PRs are very welcome!
 
@@ -56,7 +56,7 @@ Este documento reúne:
 
 ## 3. Guía para Ganar la Insignia `Galaxy Brain` en GitHub Discussions
 
-Ya dejamos habilitada la pestaña **Discussions** en tu repositorio `jf-floresriera/gulupascaner`. Para desbloquear **Galaxy Brain** (se obtiene cuando **2 respuestas tuyas** en categoría `Q&A` son marcadas como *Marked as Answer*):
+Primero habilita la pestaña **Discussions** en el repositorio `LCastillo9806/GulupaScan` (*Settings › General › Features › Discussions*). Para desbloquear **Galaxy Brain** (se obtiene cuando **2 respuestas tuyas** en categoría `Q&A` son marcadas como *Marked as Answer*):
 
 ### Pregunta 1 (Para que un compañero la publique en la categoría `Q&A`):
 > **Título:** *¿Cómo se decodifican las máscaras de `output0` y `output1` en los modelos `YOLO26n-seg` ONNX sin depender de Ultralytics en Android/iOS?*

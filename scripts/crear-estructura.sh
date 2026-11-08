@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Crea la estructura del repositorio GulupaScaner.
+# Crea la estructura del repositorio GulupaScan.
 # Uso (desde la raíz del proyecto, en Git Bash):  bash scripts/crear-estructura.sh
 set -e
 
