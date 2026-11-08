@@ -4,8 +4,8 @@ message: "Si utilizas este software, los modelos ONNX o la arquitectura móvil e
 type: software
 version: 0.3.0
 date-released: "2026-11-05"
-url: "https://github.com/jf-floresriera/gulupascaner"
-repository-code: "https://github.com/jf-floresriera/gulupascaner"
+url: "https://github.com/LCastillo9806/GulupaScan"
+repository-code: "https://github.com/LCastillo9806/GulupaScan"
 license: MIT
 keywords:
   - computer-vision
@@ -19,18 +19,13 @@ keywords:
   - android
   - ios
 authors:
-  - family-names: "Flores-Riera"
-    given-names: "Jesús Enrique"
-    affiliation: "Universidad Nacional de Colombia, Facultad de Ciencias Agrarias"
-  - family-names: "Ramírez-Gil"
-    given-names: "Joaquín Guillermo"
-    affiliation: "Universidad Nacional de Colombia, Facultad de Ciencias Agrarias"
   - family-names: "Castillo Sanabria"
     given-names: "Luis Alberto"
-    affiliation: "Universidad Nacional de Colombia, Facultad de Ciencias Agrarias"
+  - family-names: "Flores-Riera"
+    given-names: "Jesús Enrique"
+  - family-names: "Ramírez-Gil"
+    given-names: "Joaquín Guillermo"
   - family-names: "Lavado González"
     given-names: "Diego Humberto"
-    affiliation: "Universidad Nacional de Colombia, Facultad de Ingeniería"
   - family-names: "Ahumada Hernández"
     given-names: "Daniel Felipe"
-    affiliation: "Universidad Nacional de Colombia, Facultad de Ingeniería"

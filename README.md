@@ -3,16 +3,16 @@
 # 🟣 GulupaScan v0.3.0 
 ### Detección y Cuantificación de Severidad de Daños Epidérmicos en Gulupa (*Passiflora edulis* Sims) mediante Modelos ONNX `YOLO26n-seg` en Dos Etapas (Android & iOS)
 
-[![Release](https://img.shields.io/badge/version-0.3.0-5D2741?style=for-the-badge)](https://github.com/jf-floresriera/gulupascaner/releases)
-[![Android CI](https://img.shields.io/github/actions/workflow/status/jf-floresriera/gulupascaner/build-apk.yml?branch=main&style=for-the-badge&logo=android&label=Android%20APK)](https://github.com/jf-floresriera/gulupascaner/actions)
+[![Release](https://img.shields.io/badge/version-0.3.0-5D2741?style=for-the-badge)](https://github.com/LCastillo9806/GulupaScan/releases)
+[![Android CI](https://img.shields.io/github/actions/workflow/status/LCastillo9806/GulupaScan/build-apk.yml?branch=main&style=for-the-badge&logo=android&label=Android%20APK)](https://github.com/LCastillo9806/GulupaScan/actions)
 [![iOS SwiftUI](https://img.shields.io/badge/iOS-16.0%2B%20SwiftUI-005828?style=for-the-badge&logo=apple)](./iosApp)
 [![ONNX Runtime](https://img.shields.io/badge/ONNX%20Runtime-INT8%20Offline-00A85A?style=for-the-badge&logo=onnx)](./models/README.md)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](./scripts/referencia_onnx.py)
 [![License: MIT](https://img.shields.io/badge/License-MIT-FEDC7A?style=for-the-badge&labelColor=2A1A22)](./CITATION.cff)
 
-**Universidad Nacional de Colombia (UNAL)** · *Facultad de Ciencias Agrarias & Facultad de Ingeniería*
+**Tesis de Maestría** · *Luis Alberto Castillo Sanabria*
 
-[Manual Técnico y de Usuario](./docs/MANUAL_USUARIO_Y_TECNICO.md) · [Explorar Modelos ONNX](./models/README.md) · [Descargar APK (Actions)](https://github.com/jf-floresriera/gulupascaner/actions) · [Guía de Reproducción](#5-instalación-y-ejecución-paso-a-paso) · [Cómo Citar](#8-cómo-citar-esta-investigación--how-to-cite)
+[Manual Técnico y de Usuario](./docs/MANUAL_USUARIO_Y_TECNICO.md) · [Explorar Modelos ONNX](./models/README.md) · [Descargar APK (Actions)](https://github.com/LCastillo9806/GulupaScan/actions) · [Guía de Reproducción](#5-instalación-y-ejecución-paso-a-paso) · [Cómo Citar](#8-cómo-citar-esta-investigación--how-to-cite)
 
 </div>
 
@@ -95,8 +95,8 @@ Tanto en la barra inferior de la cámara como en la pantalla de **Configuración
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/jf-floresriera/gulupascaner.git
-cd gulupascaner
+git clone https://github.com/LCastillo9806/GulupaScan.git
+cd GulupaScan
 
 # 2. Crear y activar entorno Conda
 conda create -n gulupascan python=3.11 -y
@@ -165,11 +165,13 @@ gulupascaner/
 
 ## 7. Equipo de Investigación y Desarrollo
 
-- **Jesús Enrique Flores-Riera** — *Facultad de Ciencias Agrarias, Universidad Nacional de Colombia (UNAL)*
-- **Joaquín Guillermo Ramírez-Gil** — *Profesor Asociado, Facultad de Ciencias Agrarias, Universidad Nacional de Colombia (UNAL)*
-- **Luis Alberto Castillo Sanabria** — *Facultad de Ciencias Agrarias, Universidad Nacional de Colombia (UNAL)*
-- **Diego Humberto Lavado González** — *Facultad de Ingeniería, Universidad Nacional de Colombia (UNAL)*
-- **Daniel Felipe Ahumada Hernández** — *Facultad de Ingeniería, Universidad Nacional de Colombia (UNAL)*
+GulupaScan es el resultado de la tesis de maestría de **Luis Alberto Castillo Sanabria**.
+
+- **Luis Alberto Castillo Sanabria** — *Autor principal (tesis de maestría)*
+- **Jesús Enrique Flores-Riera** — *Coautor*
+- **Joaquín Guillermo Ramírez-Gil** — *Coautor*
+- **Diego Humberto Lavado González** — *Coautor*
+- **Daniel Felipe Ahumada Hernández** — *Coautor*
 
 ---
 
@@ -179,20 +181,20 @@ Si utilizas **GulupaScan**, sus modelos ONNX cuantizados o su arquitectura móvi
 
 ### Formato BibTeX
 ```bibtex
-@software{flores_riera_gulupascan_2026,
-  author       = {Flores-Riera, Jes{\'u}s Enrique and
+@software{castillo_sanabria_gulupascan_2026,
+  author       = {Castillo Sanabria, Luis Alberto and
+                  Flores-Riera, Jes{\'u}s Enrique and
                   Ram{\'i}rez-Gil, Joaqu{\'i}n Guillermo and
-                  Castillo Sanabria, Luis Alberto and
                   Lavado Gonz{\'a}lez, Diego Humberto and
                   Ahumada Hern{\'a}ndez, Daniel Felipe},
   title        = {{GulupaScan: Detection and Severity Quantification of Epidermal Damage in Purple Passion Fruit (Passiflora edulis Sims) Using Dual-Stage YOLO26n-seg ONNX Models}},
   year         = {2026},
   publisher    = {GitHub},
   version      = {0.3.0},
-  institution  = {Universidad Nacional de Colombia},
-  url          = {https://github.com/jf-floresriera/gulupascaner}
+  note         = {Resultado de tesis de maestr{\'i}a},
+  url          = {https://github.com/LCastillo9806/GulupaScan}
 }
 ```
 
 ### Formato APA (7.ª Edición)
-> Flores-Riera, J. E., Ramírez-Gil, J. G., Castillo Sanabria, L. A., Lavado González, D. H., & Ahumada Hernández, D. F. (2026). *GulupaScan: Detection and Severity Quantification of Epidermal Damage in Purple Passion Fruit (Passiflora edulis Sims) Using Dual-Stage YOLO26n-seg ONNX Models* (Versión 0.3.0) [Software de computador]. Universidad Nacional de Colombia. https://github.com/jf-floresriera/gulupascaner
+> Castillo Sanabria, L. A., Flores-Riera, J. E., Ramírez-Gil, J. G., Lavado González, D. H., & Ahumada Hernández, D. F. (2026). *GulupaScan: Detection and Severity Quantification of Epidermal Damage in Purple Passion Fruit (Passiflora edulis Sims) Using Dual-Stage YOLO26n-seg ONNX Models* (Versión 0.3.0) [Software de computador]. https://github.com/LCastillo9806/GulupaScan
